@@ -1,0 +1,42 @@
+{
+	"name": "@s77rt/react-native-markdown",
+	"version": "0.0.1",
+	"description": "A React Native markdown input component",
+	"react-native": "js/index",
+	"source": "js/index",
+	"files": [
+		"js",
+		"android",
+		"ios",
+		"react-native-markdown.podspec",
+		"!android/build",
+		"!ios/build",
+		"!**/__tests__",
+		"!**/__fixtures__",
+		"!**/__mocks__"
+	],
+	"keywords": [
+		"react-native",
+		"markdown"
+	],
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/s77rt/react-native-markdown.git"
+	},
+	"author": "Abdelhafidh Belalia <admin@abdelhafidh.com> (https://github.com/s77rt)",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/s77rt/react-native-markdown/issues"
+	},
+	"homepage": "https://github.com/s77rt/react-native-markdown#readme",
+	"devDependencies": {},
+	"peerDependencies": {
+		"react": "*",
+		"react-native": "*"
+	},
+	"codegenConfig": {
+		"name": "RTNMarkdownInputSpecs",
+		"type": "components",
+		"jsSrcsDir": "js"
+	}
+}
