@@ -4,6 +4,7 @@
 	"description": "A React Native markdown input component",
 	"react-native": "js/index",
 	"source": "js/index",
+	"main": "js/index",
 	"files": [
 		"js",
 		"android",

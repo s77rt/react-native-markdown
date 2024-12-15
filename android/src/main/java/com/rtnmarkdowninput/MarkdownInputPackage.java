@@ -12,7 +12,7 @@ public class MarkdownInputPackage implements ReactPackage {
   @Override
   public List<ViewManager>
   createViewManagers(ReactApplicationContext reactContext) {
-    return Collections.singletonList(new MarkdownInputManager());
+    return Collections.singletonList(new MarkdownInputManager(reactContext));
   }
 
   @Override
