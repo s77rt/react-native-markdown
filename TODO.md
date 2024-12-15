@@ -1,0 +1,1 @@
+-   [ ] Store last formatted text and skip formatting if text didn't change (and if style and parser didn't change)
