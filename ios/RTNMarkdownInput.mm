@@ -7,7 +7,6 @@
 #import <react/renderer/components/RTNMarkdownInputSpecs/Props.h>
 #import <react/renderer/components/RTNMarkdownInputSpecs/RCTComponentViewHelpers.h>
 
-#import "RTNMarkdownInputComponentView.h"
 #import <React/RCTTextInputComponentView.h>
 
 #import "RCTFabricComponentsPlugins.h"
@@ -30,8 +29,6 @@ using namespace facebook::react;
                           index:(NSInteger)index {
   object_setClass((RCTTextInputComponentView *)childComponentView,
                   objc_getClass("RTNMarkdownInputComponentView"));
-  [(RTNMarkdownInputComponentView *)
-          childComponentView populateBackedTextInputView];
   [super mountChildComponentView:childComponentView index:index];
 }
 
