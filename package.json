@@ -1,7 +1,7 @@
 {
 	"name": "@s77rt/react-native-markdown",
 	"version": "0.0.1",
-	"description": "A React Native markdown input component",
+	"description": "React Native Markdown Components",
 	"react-native": "js/index",
 	"source": "js/index",
 	"main": "js/index",
@@ -36,7 +36,7 @@
 		"react-native": "*"
 	},
 	"codegenConfig": {
-		"name": "RTNMarkdownInputSpecs",
+		"name": "RTNMarkdownSpecs",
 		"type": "components",
 		"jsSrcsDir": "js"
 	}

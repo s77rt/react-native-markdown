@@ -16,7 +16,7 @@ apply plugin: 'com.facebook.react'
 
 android {
   compileSdkVersion safeExtGet('compileSdkVersion', 33)
-  namespace "com.rtnmarkdowninput"
+  namespace "com.rtnmarkdown"
 
   defaultConfig {
     minSdkVersion safeExtGet('minSdkVersion', 21)

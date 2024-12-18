@@ -1,3 +1,3 @@
-import MarkdownInput from "./MarkdownInput";
+import MarkdownTextInput from "./MarkdownTextInput";
 
-export { MarkdownInput };
+export { MarkdownTextInput };

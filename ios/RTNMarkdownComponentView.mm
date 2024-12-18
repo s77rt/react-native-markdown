@@ -1,7 +1,9 @@
-#import "RTNMarkdownInputComponentView.h"
+#import "RTNMarkdownComponentView.h"
 
 #import <React/RCTBackedTextInputDelegate.h>
 #import <React/RCTBackedTextInputViewProtocol.h>
+
+#import "RTNMarkdownFormatter.h"
 
 using namespace facebook::react;
 
@@ -15,10 +17,10 @@ using namespace facebook::react;
                         end:(NSInteger)end;
 @end
 
-@interface RTNMarkdownInputComponentView ()
+@interface RTNMarkdownComponentView ()
 @end
 
-@implementation RTNMarkdownInputComponentView {
+@implementation RTNMarkdownComponentView {
   // DO NOT ADD IVARS. This class is not meant to be initialized. It's just
   // swapped in place of RCTTextInputComponentView and its instances cannot hold
   // any additional data.
@@ -51,6 +53,7 @@ using namespace facebook::react;
 }
 
 - (void)formatText {
+  print_hello();
   UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
       [super valueForKey:@"_backedTextInputView"];
 
@@ -69,6 +72,6 @@ using namespace facebook::react;
 
 @end
 
-Class<RCTComponentViewProtocol> RTNMarkdownInputComponentViewCls(void) {
-  return RTNMarkdownInputComponentView.class;
+Class<RCTComponentViewProtocol> RTNMarkdownComponentViewCls(void) {
+  return RTNMarkdownComponentView.class;
 }

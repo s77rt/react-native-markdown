@@ -3,7 +3,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RTNMarkdownInput : RCTViewComponentView
+@interface RTNMarkdown : RCTViewComponentView
 
 @end
 

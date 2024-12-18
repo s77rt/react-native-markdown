@@ -1,4 +1,4 @@
-package com.rtnmarkdowninput.spans;
+package com.rtnmarkdown.spans;
 
 import android.text.style.ForegroundColorSpan;
 

@@ -1,4 +1,4 @@
-package com.rtnmarkdowninput;
+package com.rtnmarkdown;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -11,11 +11,10 @@ import androidx.annotation.Nullable;
 import com.facebook.common.logging.FLog;
 import com.facebook.react.views.textinput.ReactEditText;
 import com.facebook.react.views.view.ReactViewGroup;
-import com.rtnmarkdowninput.spans.MarkdownForegroundColorSpan;
-import com.rtnmarkdowninput.spans.MarkdownSpan;
+import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
+import com.rtnmarkdown.spans.MarkdownSpan;
 
-// TODO rename to formatter
-public class MarkdownInputTextWatcher implements TextWatcher {
+public class MarkdownFormatter implements TextWatcher {
   @Override
   public void beforeTextChanged(CharSequence s, int start, int count,
                                 int after) {}

@@ -1,4 +1,4 @@
-package com.rtnmarkdowninput;
+package com.rtnmarkdown;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -13,14 +13,14 @@ import com.facebook.react.views.text.internal.span.ReactSpan;
 import com.facebook.react.views.textinput.ReactEditText;
 import com.facebook.react.views.view.ReactViewGroup;
 
-public class MarkdownInputGroup extends ReactViewGroup {
-  public MarkdownInputGroup(Context context) { super(context); }
+public class MarkdownGroup extends ReactViewGroup {
+  public MarkdownGroup(Context context) { super(context); }
 
   @Override
   public void addView(View child, int index,
                       @Nullable ViewGroup.LayoutParams params) {
     ReactEditText editText = (ReactEditText)child;
-    editText.addTextChangedListener(new MarkdownInputTextWatcher());
+    editText.addTextChangedListener(new MarkdownFormatter());
     super.addView(child, index, params);
   }
 }
