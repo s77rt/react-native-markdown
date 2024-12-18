@@ -14,6 +14,7 @@ import com.facebook.react.views.view.ReactViewGroup;
 import com.rtnmarkdowninput.spans.MarkdownForegroundColorSpan;
 import com.rtnmarkdowninput.spans.MarkdownSpan;
 
+// TODO rename to formatter
 public class MarkdownInputTextWatcher implements TextWatcher {
   @Override
   public void beforeTextChanged(CharSequence s, int start, int count,
