@@ -53,9 +53,9 @@ using namespace facebook::react;
 }
 
 - (void)formatText {
-  print_hello();
   UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
       [super valueForKey:@"_backedTextInputView"];
+  CommonMarkTextInput(backedTextInputView);
 
   if (backedTextInputView.attributedText.string.length > 4) {
     NSMutableAttributedString *attributedString =
