@@ -22,15 +22,32 @@ static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
                          void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
-  printf("%s\n", text);
+
   for (const MD_SPANTYPE &span : r->spanStack) {
-    printf("span: %d\n", span);
+    // printf("span: %d\n", span);
   }
+
+  char textBuffer[size + 1];
+  strncpy(textBuffer, text, size);
+  textBuffer[size] = '\0';
+
+  printf("size: %d\n", size);
+  printf("textBuffer: %s\n", textBuffer);
+
+  NSString *textString = [NSString stringWithCString:textBuffer
+                                            encoding:NSUTF8StringEncoding];
+
+  [[r->result mutableString] appendString:textString];
+
   return 0;
 }
 
-void CommonMarkTextInput(
+NSAttributedString *CommonMarkTextInput(
     UIView<RCTBackedTextInputViewProtocol> *backedTextInputView) {
+  const char *input = [backedTextInputView.attributedText.string UTF8String];
+  NSMutableAttributedString *output = [[NSMutableAttributedString alloc]
+      initWithString:@""
+          attributes:backedTextInputView.defaultTextAttributes];
 
   MD_PARSER parser = {0,
                       0,
@@ -41,8 +58,11 @@ void CommonMarkTextInput(
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {};
+  CommonMarkTextInputData userdata = {output, YES};
 
-  md_parse("*test abc* **this should be in bold** _iii_", 43, &parser,
-           &userdata);
+  [output beginEditing];
+  md_parse(input, strlen(input), &parser, &userdata);
+  [output endEditing];
+
+  return output;
 }

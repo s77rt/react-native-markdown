@@ -3,8 +3,10 @@
 #import <vector>
 
 typedef struct CommonMarkTextInputData {
+  NSMutableAttributedString *result;
+  BOOL preserveSyntax;
   std::vector<MD_SPANTYPE> spanStack;
 } CommonMarkTextInputData;
 
-void CommonMarkTextInput(
+NSAttributedString *CommonMarkTextInput(
     UIView<RCTBackedTextInputViewProtocol> *backedTextInputView);
