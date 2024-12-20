@@ -19,8 +19,8 @@ static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
   r->spanStack.pop_back();
   return 0;
 }
-static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
-                         void *userdata) {
+static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
+                         MD_OFFSET offset, MD_SIZE size, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
 
   for (const MD_SPANTYPE &span : r->spanStack) {
@@ -31,8 +31,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
   strncpy(textBuffer, text, size);
   textBuffer[size] = '\0';
 
-  printf("size: %d\n", size);
-  printf("textBuffer: %s\n", textBuffer);
+  printf("textBuffer: %s - offset: %d - size: %d\n", textBuffer, offset, size);
 
   NSString *textString = [NSString stringWithCString:textBuffer
                                             encoding:NSUTF8StringEncoding];
