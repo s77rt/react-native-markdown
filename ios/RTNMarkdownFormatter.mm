@@ -46,8 +46,7 @@ NSAttributedString *CommonMarkTextInput(
     UIView<RCTBackedTextInputViewProtocol> *backedTextInputView) {
   const char *input = [backedTextInputView.attributedText.string UTF8String];
   NSMutableAttributedString *output = [[NSMutableAttributedString alloc]
-      initWithString:@""
-          attributes:backedTextInputView.defaultTextAttributes];
+      initWithAttributedString:backedTextInputView.attributedText];
 
   MD_PARSER parser = {0,
                       0,

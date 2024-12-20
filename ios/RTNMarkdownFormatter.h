@@ -2,7 +2,8 @@
 #import <React/RCTBackedTextInputViewProtocol.h>
 #import <vector>
 
-typedef struct CommonMarkTextInputData {
+typedef struct CommonMarkTextInputData
+{
   NSMutableAttributedString *result;
   BOOL preserveSyntax;
   std::vector<MD_SPANTYPE> spanStack;
