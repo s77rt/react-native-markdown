@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.author          = package["author"]
   s.source          = { :git => "", :tag => "#{s.version}" }
 
-  s.source_files    = "ios/**/*.{h,m,mm,swift}"
+  s.source_files    = ["ios/**/*.{h,m,mm,swift}", "md4c/src/md4c.h", "md4c/src/md4c.c"]
 
   install_modules_dependencies(s)
 end

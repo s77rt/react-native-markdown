@@ -37,7 +37,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text, MD_SIZE size,
   NSString *textString = [NSString stringWithCString:textBuffer
                                             encoding:NSUTF8StringEncoding];
 
-  [[r->result mutableString] appendString:textString];
+  // [[r->result mutableString] appendString:textString];
 
   return 0;
 }
