@@ -3,8 +3,9 @@
 #import <vector>
 
 typedef struct CommonMarkTextInputData {
-  NSMutableAttributedString *result;
+  NSUInteger inputLength;
   BOOL preserveSyntax;
+  NSMutableAttributedString *result;
   std::vector<MD_SPANTYPE> spanStack;
 } CommonMarkTextInputData;
 

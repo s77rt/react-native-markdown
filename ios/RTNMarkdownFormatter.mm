@@ -20,23 +20,38 @@ static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
   return 0;
 }
 static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
-                         MD_OFFSET offset, MD_SIZE size, void *userdata) {
+                         MD_OFFSET offset, MD_SIZE size, MD_OFFSET offset_char, MD_SIZE size_char, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
-
-  for (const MD_SPANTYPE &span : r->spanStack) {
-    // printf("span: %d\n", span);
-  }
 
   char textBuffer[size + 1];
   strncpy(textBuffer, text, size);
   textBuffer[size] = '\0';
+  printf("textBuffer: %s - offset: %d - size: %d - type: %d\n", textBuffer,
+         offset_char, size_char, type);
 
-  printf("textBuffer: %s - offset: %d - size: %d\n", textBuffer, offset, size);
+  // The received range may be out of bounds because MD4C adds extra newlines
+  // (e.g. after HTML tags)
+  if (offset_char + size_char > r->inputLength) {
+    return 0;
+  }
 
-  NSString *textString = [NSString stringWithCString:textBuffer
-                                            encoding:NSUTF8StringEncoding];
+  NSMutableDictionary<NSAttributedStringKey, id> *attributes =
+      [[NSMutableDictionary alloc] initWithCapacity:r->spanStack.size()];
 
-  // [[r->result mutableString] appendString:textString];
+  for (const MD_SPANTYPE &span : r->spanStack) {
+    switch (span) {
+    case MD_SPAN_EM:
+      [attributes setValue:[UIColor redColor]
+                    forKey:NSForegroundColorAttributeName];
+      break;
+    case MD_SPAN_STRONG:
+      [attributes setValue:[UIColor greenColor]
+                    forKey:NSForegroundColorAttributeName];
+      break;
+    }
+  }
+
+  [r->result addAttributes:attributes range:NSMakeRange(offset_char, size_char)];
 
   return 0;
 }
@@ -45,7 +60,8 @@ NSAttributedString *CommonMarkTextInput(
     UIView<RCTBackedTextInputViewProtocol> *backedTextInputView) {
   const char *input = [backedTextInputView.attributedText.string UTF8String];
   NSMutableAttributedString *output = [[NSMutableAttributedString alloc]
-      initWithAttributedString:backedTextInputView.attributedText];
+      initWithString:backedTextInputView.attributedText.string
+          attributes:backedTextInputView.defaultTextAttributes];
 
   MD_PARSER parser = {0,
                       0,
@@ -56,7 +72,8 @@ NSAttributedString *CommonMarkTextInput(
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {output, YES};
+  CommonMarkTextInputData userdata = {
+      backedTextInputView.attributedText.string.length, YES, output};
 
   [output beginEditing];
   md_parse(input, strlen(input), &parser, &userdata);
