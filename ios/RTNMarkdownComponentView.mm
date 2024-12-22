@@ -57,18 +57,6 @@ using namespace facebook::react;
       [super valueForKey:@"_backedTextInputView"];
   NSAttributedString *formattedText = CommonMarkTextInput(backedTextInputView);
   [super _setAttributedString:formattedText];
-
-  /* if (backedTextInputView.attributedText.string.length > 4) {
-     NSMutableAttributedString *attributedString =
-         [[NSMutableAttributedString alloc]
-             initWithAttributedString:backedTextInputView.attributedText];
-     [attributedString beginEditing];
-     [attributedString
-         addAttributes:@{NSForegroundColorAttributeName : [UIColor redColor]}
-                 range:NSMakeRange(2, 2)];
-     [attributedString endEditing];
-     [super _setAttributedString:formattedText];
-   }*/
 }
 
 @end

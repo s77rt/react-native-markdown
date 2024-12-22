@@ -1,17 +1,38 @@
 #import "RTNMarkdownFormatter.h"
 #import <stdio.h>
+// TODO remove stdio import
 
 static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
                                 void *userdata) {
+  CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
+  r->blockStack.push_back((BlockNode){type, 0, 0});
   return 0;
 }
 static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
                                 void *userdata) {
+  CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
+  BlockNode block = r->blockStack.back();
+  printf("leaving block %d - start: %d - end: %d - indent level: %d\n",
+         block.type, block.start, block.end, r->blockStack.size() - 1);
+  if (block.type == MD_BLOCK_QUOTE) {
+    if ((r->blockStack.size() - 1) % 2 == 0) {
+      [r->result
+          addAttributes:@{NSBackgroundColorAttributeName : [UIColor blueColor]}
+                  range:NSMakeRange(block.start, block.end - block.start)];
+    } else {
+      [r->result
+          addAttributes:@{
+            NSBackgroundColorAttributeName : [UIColor yellowColor]
+          }
+                  range:NSMakeRange(block.start, block.end - block.start)];
+    }
+  }
+  r->blockStack.pop_back();
   return 0;
 }
 static int enter_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
-  r->spanStack.push_back(type);
+  r->spanStack.push_back((SpanNode)type);
   return 0;
 }
 static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
@@ -20,14 +41,9 @@ static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
   return 0;
 }
 static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
-                         MD_OFFSET offset, MD_SIZE size, MD_OFFSET offset_char, MD_SIZE size_char, void *userdata) {
+                         MD_OFFSET offset, MD_SIZE size, MD_OFFSET offset_char,
+                         MD_SIZE size_char, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
-
-  char textBuffer[size + 1];
-  strncpy(textBuffer, text, size);
-  textBuffer[size] = '\0';
-  printf("textBuffer: %s - offset: %d - size: %d - type: %d\n", textBuffer,
-         offset_char, size_char, type);
 
   // The received range may be out of bounds because MD4C adds extra newlines
   // (e.g. after HTML tags)
@@ -35,10 +51,19 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
     return 0;
   }
 
+  for (BlockNode &block : r->blockStack) {
+    if (block.start == 0 && block.end == 0) {
+      block.start = offset_char;
+    }
+    block.end = offset_char + size_char;
+  }
+
   NSMutableDictionary<NSAttributedStringKey, id> *attributes =
       [[NSMutableDictionary alloc] initWithCapacity:r->spanStack.size()];
-
-  for (const MD_SPANTYPE &span : r->spanStack) {
+  // TODO remove (syntax test)
+  [attributes setValue:[UIColor blackColor]
+                forKey:NSForegroundColorAttributeName];
+  for (const SpanNode &span : r->spanStack) {
     switch (span) {
     case MD_SPAN_EM:
       [attributes setValue:[UIColor redColor]
@@ -50,8 +75,8 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
       break;
     }
   }
-
-  [r->result addAttributes:attributes range:NSMakeRange(offset_char, size_char)];
+  [r->result addAttributes:attributes
+                     range:NSMakeRange(offset_char, size_char)];
 
   return 0;
 }
@@ -73,9 +98,14 @@ NSAttributedString *CommonMarkTextInput(
                       NULL,
                       NULL};
   CommonMarkTextInputData userdata = {
-      backedTextInputView.attributedText.string.length, YES, output};
+      backedTextInputView.attributedText.string.length, output};
 
   [output beginEditing];
+  // TODO remove (syntax test)
+  [output
+      addAttributes:@{NSForegroundColorAttributeName : [UIColor blueColor]}
+              range:NSMakeRange(
+                        0, backedTextInputView.attributedText.string.length)];
   md_parse(input, strlen(input), &parser, &userdata);
   [output endEditing];
 
