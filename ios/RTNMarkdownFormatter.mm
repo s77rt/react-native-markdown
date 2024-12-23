@@ -12,19 +12,18 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
                                 void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
   BlockNode block = r->blockStack.back();
-  printf("leaving block %d - start: %d - end: %d - indent level: %d\n",
-         block.type, block.start, block.end, r->blockStack.size() - 1);
+  printf("leaving block %d - location: %d - length: %d - indent level: %d\n",
+         block.type, block.location, block.length, r->blockStack.size() - 1);
   if (block.type == MD_BLOCK_QUOTE) {
     if ((r->blockStack.size() - 1) % 2 == 0) {
       [r->result
           addAttributes:@{NSBackgroundColorAttributeName : [UIColor blueColor]}
-                  range:NSMakeRange(block.start, block.end - block.start)];
+                  range:NSMakeRange(block.location, block.length)];
     } else {
-      [r->result
-          addAttributes:@{
-            NSBackgroundColorAttributeName : [UIColor yellowColor]
-          }
-                  range:NSMakeRange(block.start, block.end - block.start)];
+      [r->result addAttributes:@{
+        NSBackgroundColorAttributeName : [UIColor yellowColor]
+      }
+                         range:NSMakeRange(block.location, block.length)];
     }
   }
   r->blockStack.pop_back();
@@ -42,20 +41,27 @@ static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 }
 static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
                          MD_OFFSET offset, MD_SIZE size, MD_OFFSET offset_char,
-                         MD_SIZE size_char, void *userdata) {
+                         MD_SIZE size_char, MD_OFFSET line_open,
+                         MD_OFFSET line_close, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
 
   // The received range may be out of bounds because MD4C adds extra newlines
   // (e.g. after HTML tags)
-  if (offset_char + size_char > r->inputLength) {
+  if (offset + size > r->inputSize) {
     return 0;
   }
 
+  char textBuffer[size + 1];
+  strncpy(textBuffer, text, size);
+  textBuffer[size] = '\0';
+  printf("textBuffer: %s - offset: %d (%d) - size: %d (%d) - type: %d\n",
+         textBuffer, offset_char, offset, size_char, size, type);
+
   for (BlockNode &block : r->blockStack) {
-    if (block.start == 0 && block.end == 0) {
-      block.start = offset_char;
+    if (block.location == 0 && block.length == 0) {
+      block.location = line_open;
     }
-    block.end = offset_char + size_char;
+    block.length = line_close - block.location + 1;
   }
 
   NSMutableDictionary<NSAttributedStringKey, id> *attributes =
@@ -83,7 +89,8 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
 
 NSAttributedString *CommonMarkTextInput(
     UIView<RCTBackedTextInputViewProtocol> *backedTextInputView) {
-  const char *input = [backedTextInputView.attributedText.string UTF8String];
+  const MD_CHAR *input = [backedTextInputView.attributedText.string UTF8String];
+  const MD_SIZE inputSize = strlen(input);
   NSMutableAttributedString *output = [[NSMutableAttributedString alloc]
       initWithString:backedTextInputView.attributedText.string
           attributes:backedTextInputView.defaultTextAttributes];
@@ -97,8 +104,7 @@ NSAttributedString *CommonMarkTextInput(
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {
-      backedTextInputView.attributedText.string.length, output};
+  CommonMarkTextInputData userdata = {inputSize, output};
 
   [output beginEditing];
   // TODO remove (syntax test)
@@ -106,7 +112,7 @@ NSAttributedString *CommonMarkTextInput(
       addAttributes:@{NSForegroundColorAttributeName : [UIColor blueColor]}
               range:NSMakeRange(
                         0, backedTextInputView.attributedText.string.length)];
-  md_parse(input, strlen(input), &parser, &userdata);
+  md_parse(input, inputSize, &parser, &userdata);
   [output endEditing];
 
   return output;

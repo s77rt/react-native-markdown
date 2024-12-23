@@ -5,12 +5,12 @@
 typedef MD_SPANTYPE SpanNode;
 typedef struct BlockNode {
   MD_BLOCKTYPE type;
-  NSUInteger start;
-  NSUInteger end;
+  NSUInteger location;
+  NSUInteger length;
 } BlockNode;
 
 typedef struct CommonMarkTextInputData {
-  NSUInteger inputLength;
+  MD_SIZE inputSize;
   NSMutableAttributedString *result;
   std::vector<SpanNode> spanStack;
   std::vector<BlockNode> blockStack;
