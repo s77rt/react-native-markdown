@@ -11,10 +11,11 @@ typedef struct BlockNode {
 
 typedef struct CommonMarkTextInputData {
   MD_SIZE inputSize;
-  NSMutableAttributedString *result;
+  NSMutableAttributedString *markdownString;
+  CALayer *markdownLayer;
   std::vector<SpanNode> spanStack;
   std::vector<BlockNode> blockStack;
 } CommonMarkTextInputData;
 
-NSAttributedString *CommonMarkTextInput(
-    UIView<RCTBackedTextInputViewProtocol> *backedTextInputView);
+void CommonMarkTextInput(NSMutableAttributedString *markdownString,
+                         CALayer *markdownLayer);

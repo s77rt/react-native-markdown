@@ -15,16 +15,20 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
   printf("leaving block %d - location: %d - length: %d - indent level: %d\n",
          block.type, block.location, block.length, r->blockStack.size() - 1);
   if (block.type == MD_BLOCK_QUOTE) {
-    if ((r->blockStack.size() - 1) % 2 == 0) {
-      [r->result
-          addAttributes:@{NSBackgroundColorAttributeName : [UIColor blueColor]}
-                  range:NSMakeRange(block.location, block.length)];
-    } else {
-      [r->result addAttributes:@{
-        NSBackgroundColorAttributeName : [UIColor yellowColor]
-      }
-                         range:NSMakeRange(block.location, block.length)];
-    }
+    NSMutableParagraphStyle *paragraphStyle =
+        [[NSMutableParagraphStyle alloc] init];
+    [r->markdownString
+        addAttributes:@{NSBackgroundColorAttributeName : [UIColor yellowColor]}
+                range:NSMakeRange(block.location, block.length)];
+    paragraphStyle.firstLineHeadIndent = 20;
+    paragraphStyle.headIndent = 20;
+    [r->markdownString
+        addAttributes:@{NSParagraphStyleAttributeName : paragraphStyle}
+                range:NSMakeRange(block.location, block.length)];
+    CALayer *stripe = [CALayer new];
+    stripe.frame = CGRectMake(0, 0, 20, 20);
+    stripe.backgroundColor = [UIColor blackColor].CGColor;
+    [r->markdownLayer addSublayer:stripe];
   }
   r->blockStack.pop_back();
   return 0;
@@ -66,9 +70,6 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
 
   NSMutableDictionary<NSAttributedStringKey, id> *attributes =
       [[NSMutableDictionary alloc] initWithCapacity:r->spanStack.size()];
-  // TODO remove (syntax test)
-  [attributes setValue:[UIColor blackColor]
-                forKey:NSForegroundColorAttributeName];
   for (const SpanNode &span : r->spanStack) {
     switch (span) {
     case MD_SPAN_EM:
@@ -81,19 +82,16 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
       break;
     }
   }
-  [r->result addAttributes:attributes
-                     range:NSMakeRange(offset_char, size_char)];
+  [r->markdownString addAttributes:attributes
+                             range:NSMakeRange(offset_char, size_char)];
 
   return 0;
 }
 
-NSAttributedString *CommonMarkTextInput(
-    UIView<RCTBackedTextInputViewProtocol> *backedTextInputView) {
-  const MD_CHAR *input = [backedTextInputView.attributedText.string UTF8String];
+void CommonMarkTextInput(NSMutableAttributedString *markdownString,
+                         CALayer *markdownLayer) {
+  const MD_CHAR *input = [markdownString.string UTF8String];
   const MD_SIZE inputSize = strlen(input);
-  NSMutableAttributedString *output = [[NSMutableAttributedString alloc]
-      initWithString:backedTextInputView.attributedText.string
-          attributes:backedTextInputView.defaultTextAttributes];
 
   MD_PARSER parser = {0,
                       0,
@@ -104,16 +102,7 @@ NSAttributedString *CommonMarkTextInput(
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {inputSize, output};
+  CommonMarkTextInputData userdata = {inputSize, markdownString, markdownLayer};
 
-  [output beginEditing];
-  // TODO remove (syntax test)
-  [output
-      addAttributes:@{NSForegroundColorAttributeName : [UIColor blueColor]}
-              range:NSMakeRange(
-                        0, backedTextInputView.attributedText.string.length)];
   md_parse(input, inputSize, &parser, &userdata);
-  [output endEditing];
-
-  return output;
 }

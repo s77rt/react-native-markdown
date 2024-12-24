@@ -1,12 +1,14 @@
 #import <objc/runtime.h>
 
 #import "RTNMarkdown.h"
+#import "RTNMarkdownComponentView.h"
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
 #import <react/renderer/components/RTNMarkdownSpecs/EventEmitters.h>
 #import <react/renderer/components/RTNMarkdownSpecs/Props.h>
 #import <react/renderer/components/RTNMarkdownSpecs/RCTComponentViewHelpers.h>
 
+#import <React/RCTBackedTextInputViewProtocol.h>
 #import <React/RCTTextInputComponentView.h>
 
 #import "RCTFabricComponentsPlugins.h"
@@ -28,7 +30,16 @@ using namespace facebook::react;
                           index:(NSInteger)index {
   object_setClass((RCTTextInputComponentView *)childComponentView,
                   objc_getClass("RTNMarkdownComponentView"));
-  [super mountChildComponentView:childComponentView index:index];
+  RTNMarkdownComponentView *childMarkdownComponentView =
+      (RTNMarkdownComponentView *)childComponentView;
+  UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
+      [childMarkdownComponentView valueForKey:@"_backedTextInputView"];
+
+  CALayer *markdownLayer = [CALayer new];
+  [backedTextInputView.layer addSublayer:markdownLayer];
+  [childMarkdownComponentView setMarkdownLayer:markdownLayer];
+
+  [super mountChildComponentView:childMarkdownComponentView index:index];
 }
 
 @end

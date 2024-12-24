@@ -1,3 +1,5 @@
+#import <objc/runtime.h>
+
 #import "RTNMarkdownComponentView.h"
 
 #import <React/RCTBackedTextInputDelegate.h>
@@ -55,8 +57,29 @@ using namespace facebook::react;
 - (void)formatText {
   UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
       [super valueForKey:@"_backedTextInputView"];
-  NSAttributedString *formattedText = CommonMarkTextInput(backedTextInputView);
-  [super _setAttributedString:formattedText];
+
+  NSMutableAttributedString *markdownString =
+      [backedTextInputView.attributedText mutableCopy];
+  CALayer *markdownLayer = [self markdownLayer];
+
+  [CATransaction begin];
+  [CATransaction setDisableActions:YES];
+  markdownLayer.sublayers = nil;
+  [markdownString beginEditing];
+  CommonMarkTextInput(markdownString, markdownLayer);
+  [markdownString endEditing];
+  [CATransaction commit];
+
+  [super _setAttributedString:markdownString];
+}
+
+- (CALayer *)markdownLayer {
+  return objc_getAssociatedObject(self, @selector(markdownLayer));
+}
+
+- (void)setMarkdownLayer:(CALayer *)value {
+  objc_setAssociatedObject(self, @selector(markdownLayer), value,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end
