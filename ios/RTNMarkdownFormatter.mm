@@ -14,24 +14,36 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
   BlockNode block = r->blockStack.back();
   printf("leaving block %d - location: %d - length: %d - indent level: %d\n",
          block.type, block.location, block.length, r->blockStack.size() - 1);
-  if (block.type == MD_BLOCK_QUOTE) {
-    NSMutableParagraphStyle *paragraphStyle =
-        [[NSMutableParagraphStyle alloc] init];
-    [r->markdownString
-        addAttributes:@{NSBackgroundColorAttributeName : [UIColor yellowColor]}
-                range:NSMakeRange(block.location, block.length)];
-    paragraphStyle.firstLineHeadIndent = 20;
-    paragraphStyle.headIndent = 20;
-    [r->markdownString
-        addAttributes:@{NSParagraphStyleAttributeName : paragraphStyle}
-                range:NSMakeRange(block.location, block.length)];
-    CALayer *stripe = [CALayer new];
-    CGRect blockRect = [r->layoutHelper
-        boundingRectForRange:NSMakeRange(block.location, block.length)];
-    stripe.frame = (CGRect){blockRect.origin, {10, blockRect.size.height}};
-    stripe.backgroundColor = [UIColor blackColor].CGColor;
-    [r->markdownLayer addSublayer:stripe];
+
+  switch (block.type) {
+  case MD_BLOCK_QUOTE:
+    if (block.length > 0) {
+      NSUInteger blockLevel = r->blockStack.size() - 1;
+      NSRange blockRange = NSMakeRange(block.location, block.length);
+
+      NSMutableParagraphStyle *paragraphStyle =
+          [[NSMutableParagraphStyle alloc] init];
+      paragraphStyle.firstLineHeadIndent = 20 * blockLevel;
+      paragraphStyle.headIndent = 20 * blockLevel;
+      paragraphStyle.tailIndent = 80; // ?
+      [r->markdownString
+          addAttributes:@{NSParagraphStyleAttributeName : paragraphStyle}
+                  range:blockRange];
+      [r->markdownString addAttributes:@{
+        NSBackgroundColorAttributeName : [UIColor yellowColor]
+      }
+                                 range:blockRange];
+
+      CGRect blockRect = [r->layoutHelper boundingRectForRange:blockRange];
+      CALayer *stripe = [CALayer new];
+      stripe.frame = CGRectMake(0, blockRect.origin.y, 10 * blockLevel,
+                                blockRect.size.height);
+      stripe.backgroundColor = [UIColor blackColor].CGColor;
+      [r->markdownLayer addSublayer:stripe];
+    }
+    break;
   }
+
   r->blockStack.pop_back();
   return 0;
 }

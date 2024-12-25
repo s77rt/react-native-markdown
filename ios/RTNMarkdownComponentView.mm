@@ -17,6 +17,7 @@ using namespace facebook::react;
                       value:(NSString *__nullable)value
                       start:(NSInteger)start
                         end:(NSInteger)end;
+- (void)_updateTypingAttributes;
 @end
 
 @interface RTNMarkdownComponentView ()
@@ -35,6 +36,8 @@ using namespace facebook::react;
  *
  * PS: In case controlled input is out of sync, this is the right method to
  * investigate.
+ *
+ * FIXME: Find better solution
  */
 - (void)updateState:(const State::Shared &)state
            oldState:(const State::Shared &)oldState {
@@ -54,12 +57,28 @@ using namespace facebook::react;
   [self formatText];
 }
 
+/*
+ * The original method returns early if the string is empty
+ * Should this be fixed upstream?
+ */
+- (void)_updateTypingAttributes {
+  UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
+      [super valueForKey:@"_backedTextInputView"];
+  if (backedTextInputView.attributedText.length == 0) {
+    backedTextInputView.typingAttributes =
+        backedTextInputView.defaultTextAttributes;
+    return;
+  }
+  [super _updateTypingAttributes];
+}
+
 - (void)formatText {
   UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
       [super valueForKey:@"_backedTextInputView"];
 
-  NSMutableAttributedString *markdownString =
-      [backedTextInputView.attributedText mutableCopy];
+  NSMutableAttributedString *markdownString = [[NSMutableAttributedString alloc]
+      initWithString:backedTextInputView.attributedText.string
+          attributes:backedTextInputView.defaultTextAttributes];
   CALayer *markdownLayer = [self markdownLayer];
   RTNMarkdownLayoutHelper *layoutHelper = [self layoutHelper];
 

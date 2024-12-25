@@ -3,3 +3,4 @@
 -   [ ] Add preserveSyntax prop
 -   [ ] Verify that all types are checked (i.e. text, span, block) and their details
 -   [ ] Add syntax highlight(?)
+-   [ ] Test with latest RN version
