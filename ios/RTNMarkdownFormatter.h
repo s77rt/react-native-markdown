@@ -1,5 +1,5 @@
+#import "RTNMarkdownLayoutHelper.h"
 #import "md4c.h"
-#import <React/RCTBackedTextInputViewProtocol.h>
 #import <vector>
 
 typedef MD_SPANTYPE SpanNode;
@@ -13,9 +13,11 @@ typedef struct CommonMarkTextInputData {
   MD_SIZE inputSize;
   NSMutableAttributedString *markdownString;
   CALayer *markdownLayer;
+  RTNMarkdownLayoutHelper *layoutHelper;
   std::vector<SpanNode> spanStack;
   std::vector<BlockNode> blockStack;
 } CommonMarkTextInputData;
 
 void CommonMarkTextInput(NSMutableAttributedString *markdownString,
-                         CALayer *markdownLayer);
+                         CALayer *markdownLayer,
+                         RTNMarkdownLayoutHelper *layoutHelper);

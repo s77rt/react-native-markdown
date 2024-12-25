@@ -61,12 +61,13 @@ using namespace facebook::react;
   NSMutableAttributedString *markdownString =
       [backedTextInputView.attributedText mutableCopy];
   CALayer *markdownLayer = [self markdownLayer];
+  RTNMarkdownLayoutHelper *layoutHelper = [self layoutHelper];
 
   [CATransaction begin];
   [CATransaction setDisableActions:YES];
   markdownLayer.sublayers = nil;
   [markdownString beginEditing];
-  CommonMarkTextInput(markdownString, markdownLayer);
+  CommonMarkTextInput(markdownString, markdownLayer, layoutHelper);
   [markdownString endEditing];
   [CATransaction commit];
 
@@ -79,6 +80,15 @@ using namespace facebook::react;
 
 - (void)setMarkdownLayer:(CALayer *)value {
   objc_setAssociatedObject(self, @selector(markdownLayer), value,
+                           OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (RTNMarkdownLayoutHelper *)layoutHelper {
+  return objc_getAssociatedObject(self, @selector(layoutHelper));
+}
+
+- (void)setLayoutHelper:(RTNMarkdownLayoutHelper *)value {
+  objc_setAssociatedObject(self, @selector(layoutHelper), value,
                            OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 

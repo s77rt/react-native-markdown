@@ -2,3 +2,4 @@
 -   [ ] Add MarkdownText (use same native code, just call the formatter from the right place)
 -   [ ] Add preserveSyntax prop
 -   [ ] Verify that all types are checked (i.e. text, span, block) and their details
+-   [ ] Add syntax highlight(?)

@@ -2,6 +2,7 @@
 
 #import "RTNMarkdown.h"
 #import "RTNMarkdownComponentView.h"
+#import "RTNMarkdownLayoutHelper.h"
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
 #import <react/renderer/components/RTNMarkdownSpecs/EventEmitters.h>
@@ -38,6 +39,10 @@ using namespace facebook::react;
   CALayer *markdownLayer = [CALayer new];
   [backedTextInputView.layer addSublayer:markdownLayer];
   [childMarkdownComponentView setMarkdownLayer:markdownLayer];
+
+  [childMarkdownComponentView
+      setLayoutHelper:[[RTNMarkdownLayoutHelper alloc]
+                          initWithTextInputView:backedTextInputView]];
 
   [super mountChildComponentView:childMarkdownComponentView index:index];
 }

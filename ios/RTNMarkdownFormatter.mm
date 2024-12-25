@@ -26,7 +26,9 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
         addAttributes:@{NSParagraphStyleAttributeName : paragraphStyle}
                 range:NSMakeRange(block.location, block.length)];
     CALayer *stripe = [CALayer new];
-    stripe.frame = CGRectMake(0, 0, 20, 20);
+    CGRect blockRect = [r->layoutHelper
+        boundingRectForRange:NSMakeRange(block.location, block.length)];
+    stripe.frame = (CGRect){blockRect.origin, {10, blockRect.size.height}};
     stripe.backgroundColor = [UIColor blackColor].CGColor;
     [r->markdownLayer addSublayer:stripe];
   }
@@ -89,7 +91,8 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
 }
 
 void CommonMarkTextInput(NSMutableAttributedString *markdownString,
-                         CALayer *markdownLayer) {
+                         CALayer *markdownLayer,
+                         RTNMarkdownLayoutHelper *layoutHelper) {
   const MD_CHAR *input = [markdownString.string UTF8String];
   const MD_SIZE inputSize = strlen(input);
 
@@ -102,7 +105,8 @@ void CommonMarkTextInput(NSMutableAttributedString *markdownString,
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {inputSize, markdownString, markdownLayer};
+  CommonMarkTextInputData userdata = {inputSize, markdownString, markdownLayer,
+                                      layoutHelper};
 
   md_parse(input, inputSize, &parser, &userdata);
 }
