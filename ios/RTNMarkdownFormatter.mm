@@ -5,58 +5,83 @@
 static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
                                 void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
-  r->blockStack.push_back((BlockNode){type, 0, 0});
+
+  r->blockStack.push_back((BlockNode){type, 0, 0, r->attributesStack.size()});
+
+  NSMutableDictionary<NSAttributedStringKey, id> *attributes =
+      [NSMutableDictionary dictionaryWithCapacity:5];
+
+  switch (type) {
+  case MD_BLOCK_QUOTE: {
+    r->blockQuoteIndentation++;
+
+    NSMutableParagraphStyle *paragraphStyle =
+        [[NSMutableParagraphStyle alloc] init];
+    paragraphStyle.firstLineHeadIndent = 20 * r->blockQuoteIndentation;
+    paragraphStyle.headIndent = 20 * r->blockQuoteIndentation;
+    paragraphStyle.tailIndent = 80; // ?
+    [attributes setValue:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    [attributes setValue:[UIColor yellowColor]
+                  forKey:NSBackgroundColorAttributeName];
+    [attributes setValue:[UIFont boldSystemFontOfSize:26]
+                  forKey:NSFontAttributeName];
+    break;
+  }
+  case MD_BLOCK_CODE: {
+    [attributes setValue:[UIFont monospacedSystemFontOfSize:16
+                                                     weight:UIFontWeightRegular]
+                  forKey:NSFontAttributeName];
+    break;
+  }
+  }
+
+  r->attributesStack.push_back((AttributesPack){attributes, 0, 0});
+
   return 0;
 }
+
 static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
                                 void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
+
   BlockNode block = r->blockStack.back();
-  printf("leaving block %d - location: %d - length: %d - indent level: %d\n",
-         block.type, block.location, block.length, r->blockStack.size() - 1);
+  r->attributesStack[block.attributesPackIndex].location = block.location;
+  r->attributesStack[block.attributesPackIndex].length = block.length;
 
-  switch (block.type) {
+  switch (type) {
   case MD_BLOCK_QUOTE:
-    if (block.length > 0) {
-      NSUInteger blockLevel = r->blockStack.size() - 1;
-      NSRange blockRange = NSMakeRange(block.location, block.length);
+    CGRect blockRect = [r->layoutHelper
+        boundingRectForRange:NSMakeRange(block.location, block.length)];
+    CALayer *stripe = [CALayer new];
+    stripe.frame =
+        CGRectMake(blockRect.origin.x, blockRect.origin.y,
+                   10 * r->blockQuoteIndentation, blockRect.size.height);
+    stripe.backgroundColor = [UIColor blackColor].CGColor;
+    [r->markdownLayer addSublayer:stripe];
 
-      NSMutableParagraphStyle *paragraphStyle =
-          [[NSMutableParagraphStyle alloc] init];
-      paragraphStyle.firstLineHeadIndent = 20 * blockLevel;
-      paragraphStyle.headIndent = 20 * blockLevel;
-      paragraphStyle.tailIndent = 80; // ?
-      [r->markdownString
-          addAttributes:@{NSParagraphStyleAttributeName : paragraphStyle}
-                  range:blockRange];
-      [r->markdownString addAttributes:@{
-        NSBackgroundColorAttributeName : [UIColor yellowColor]
-      }
-                                 range:blockRange];
-
-      CGRect blockRect = [r->layoutHelper boundingRectForRange:blockRange];
-      CALayer *stripe = [CALayer new];
-      stripe.frame = CGRectMake(0, blockRect.origin.y, 10 * blockLevel,
-                                blockRect.size.height);
-      stripe.backgroundColor = [UIColor blackColor].CGColor;
-      [r->markdownLayer addSublayer:stripe];
-    }
+    r->blockQuoteIndentation--;
     break;
   }
 
   r->blockStack.pop_back();
+
   return 0;
 }
+
+// TODO Fix single line input: paragraph style stuck
+
 static int enter_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
   r->spanStack.push_back((SpanNode)type);
   return 0;
 }
+
 static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
   CommonMarkTextInputData *r = (CommonMarkTextInputData *)userdata;
   r->spanStack.pop_back();
   return 0;
 }
+
 static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
                          MD_OFFSET offset, MD_SIZE size, MD_OFFSET offset_char,
                          MD_SIZE size_char, MD_OFFSET line_open,
@@ -75,20 +100,28 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
   printf("textBuffer: %s - offset: %d (%d) - size: %d (%d) - type: %d\n",
          textBuffer, offset_char, offset, size_char, size, type);
 
+  NSMutableDictionary<NSAttributedStringKey, id> *attributes =
+      [NSMutableDictionary dictionaryWithCapacity:5];
+
   for (BlockNode &block : r->blockStack) {
     if (block.location == 0 && block.length == 0) {
       block.location = line_open;
     }
     block.length = line_close - block.location + 1;
+
+    switch (block.type) {
+    case MD_BLOCK_H:
+      [attributes setValue:[UIColor blueColor]
+                    forKey:NSBackgroundColorAttributeName];
+      break;
+    }
   }
 
-  NSMutableDictionary<NSAttributedStringKey, id> *attributes =
-      [[NSMutableDictionary alloc] initWithCapacity:r->spanStack.size()];
   for (const SpanNode &span : r->spanStack) {
     switch (span) {
     case MD_SPAN_EM:
       [attributes setValue:[UIColor redColor]
-                    forKey:NSForegroundColorAttributeName];
+                    forKey:NSBackgroundColorAttributeName];
       break;
     case MD_SPAN_STRONG:
       [attributes setValue:[UIColor greenColor]
@@ -96,8 +129,9 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
       break;
     }
   }
-  [r->markdownString addAttributes:attributes
-                             range:NSMakeRange(offset_char, size_char)];
+
+  r->attributesStack.push_back(
+      (AttributesPack){attributes, offset_char, size_char});
 
   return 0;
 }
@@ -118,7 +152,13 @@ void CommonMarkTextInput(NSMutableAttributedString *markdownString,
                       NULL,
                       NULL};
   CommonMarkTextInputData userdata = {inputSize, markdownString, markdownLayer,
-                                      layoutHelper};
+                                      layoutHelper, 0};
 
   md_parse(input, inputSize, &parser, &userdata);
+
+  for (const AttributesPack &attributesPack : userdata.attributesStack) {
+    [markdownString addAttributes:attributesPack.attributes
+                            range:NSMakeRange(attributesPack.location,
+                                              attributesPack.length)];
+  }
 }

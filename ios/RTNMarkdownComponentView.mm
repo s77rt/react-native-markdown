@@ -67,7 +67,6 @@ using namespace facebook::react;
   if (backedTextInputView.attributedText.length == 0) {
     backedTextInputView.typingAttributes =
         backedTextInputView.defaultTextAttributes;
-    return;
   }
   [super _updateTypingAttributes];
 }

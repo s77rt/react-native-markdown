@@ -17,18 +17,17 @@
 }
 
 - (CGRect)boundingRectForRange:(NSRange)range {
-  UITextView *textView = ((UITextView *)_backedTextInputView);
-  UITextPosition *start =
-      [textView positionFromPosition:textView.beginningOfDocument
-                              offset:range.location];
-  UITextPosition *end = [textView positionFromPosition:start
-                                                offset:range.length];
-  UITextRange *textRange = [textView textRangeFromPosition:start
-                                                toPosition:end];
+  UITextPosition *start = [_backedTextInputView
+      positionFromPosition:_backedTextInputView.beginningOfDocument
+                    offset:range.location];
+  UITextPosition *end =
+      [_backedTextInputView positionFromPosition:start offset:range.length];
+  UITextRange *textRange = [_backedTextInputView textRangeFromPosition:start
+                                                            toPosition:end];
 
   CGRect rect = CGRectNull;
   NSArray<UITextSelectionRect *> *selectionRects =
-      [textView selectionRectsForRange:textRange];
+      [_backedTextInputView selectionRectsForRange:textRange];
   for (UITextSelectionRect *selectionRect in selectionRects) {
     rect = CGRectUnion(rect, selectionRect.rect);
   }

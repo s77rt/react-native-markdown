@@ -1,6 +1,5 @@
 -   [ ] Store last formatted text and skip formatting if text didn't change (and if style and parser didn't change)
 -   [ ] Add MarkdownText (use same native code, just call the formatter from the right place)
--   [ ] Add preserveSyntax prop
 -   [ ] Verify that all types are checked (i.e. text, span, block) and their details
--   [ ] Add syntax highlight(?)
+-   [ ] Add syntax highlight - this must be done at the parser level i.e. md4c
 -   [ ] Test with latest RN version
