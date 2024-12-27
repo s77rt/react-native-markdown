@@ -11,63 +11,44 @@ using namespace facebook::react;
 
 // Re-declare the super class interface so we access unexposed methods
 @interface RCTTextInputComponentView () <RCTBackedTextInputDelegate>
-- (void)textInputDidChange;
-- (void)_setAttributedString:(NSAttributedString *)attributedString;
-- (void)setTextAndSelection:(NSInteger)eventCount
-                      value:(NSString *__nullable)value
-                      start:(NSInteger)start
-                        end:(NSInteger)end;
+- (void)_updateState;
 - (void)_updateTypingAttributes;
+- (void)_setAttributedString:(NSAttributedString *)attributedString;
 @end
 
 @interface RTNMarkdownComponentView ()
 @end
 
 @implementation RTNMarkdownComponentView {
-  // DO NOT ADD IVARS. This class is not meant to be initialized. It's just
-  // swapped in place of RCTTextInputComponentView and its instances cannot hold
-  // any additional data.
+  // DO NOT ADD IVARS. This class is used as a direct replacement for
+  // RCTTextInputComponentView and cannot hold any additional data.
 }
 
 /*
- * The original (super) updateState does nothing but make a call to
- * _setAttributedString with default attributes which messes up our format.
- *  Overriding this method is basically an experiment for now.
- *
- * PS: In case controlled input is out of sync, this is the right method to
- * investigate.
- *
- * FIXME: Find better solution
+ * The original method is called with outdated attributed strings.
+ * Making this a NO-OP until a clear RCA is established or bugs are
+ * encountered.
  */
 - (void)updateState:(const State::Shared &)state
            oldState:(const State::Shared &)oldState {
   return;
 }
 
-- (void)textInputDidChange {
+- (void)_updateState {
   [self formatText];
-  [super textInputDidChange];
+  [super _updateState];
 }
 
-- (void)setTextAndSelection:(NSInteger)eventCount
-                      value:(NSString *__nullable)value
-                      start:(NSInteger)start
-                        end:(NSInteger)end {
-  [super setTextAndSelection:eventCount value:value start:start end:end];
-  [self formatText];
-}
-
-/*
- * The original method returns early if the string is empty
- * Should this be fixed upstream?
- */
 - (void)_updateTypingAttributes {
   UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
       [super valueForKey:@"_backedTextInputView"];
+
   if (backedTextInputView.attributedText.length == 0) {
     backedTextInputView.typingAttributes =
         backedTextInputView.defaultTextAttributes;
+    return;
   }
+
   [super _updateTypingAttributes];
 }
 
@@ -85,7 +66,8 @@ using namespace facebook::react;
   [CATransaction setDisableActions:YES];
   markdownLayer.sublayers = nil;
   [markdownString beginEditing];
-  CommonMarkTextInput(markdownString, markdownLayer, layoutHelper);
+  CommonMarkTextInput(markdownString, backedTextInputView.defaultTextAttributes,
+                      markdownLayer, layoutHelper);
   [markdownString endEditing];
   [CATransaction commit];
 

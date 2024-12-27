@@ -20,6 +20,7 @@ typedef struct AttributesPack {
 typedef struct CommonMarkTextInputData {
   MD_SIZE inputSize;
   NSMutableAttributedString *markdownString;
+  NSDictionary<NSString *, id> *defaultTextAttributes;
   CALayer *markdownLayer;
   RTNMarkdownLayoutHelper *layoutHelper;
   NSUInteger blockQuoteIndentation;
@@ -29,5 +30,6 @@ typedef struct CommonMarkTextInputData {
 } CommonMarkTextInputData;
 
 void CommonMarkTextInput(NSMutableAttributedString *markdownString,
+                         NSDictionary<NSString *, id> *defaultTextAttributes,
                          CALayer *markdownLayer,
                          RTNMarkdownLayoutHelper *layoutHelper);

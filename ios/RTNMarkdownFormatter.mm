@@ -15,8 +15,11 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
   case MD_BLOCK_QUOTE: {
     r->blockQuoteIndentation++;
 
+    NSParagraphStyle *defaultParagraphStyle =
+        r->defaultTextAttributes[NSParagraphStyleAttributeName];
     NSMutableParagraphStyle *paragraphStyle =
-        [[NSMutableParagraphStyle alloc] init];
+        defaultParagraphStyle != nil ? [defaultParagraphStyle mutableCopy]
+                                     : [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.firstLineHeadIndent = 20 * r->blockQuoteIndentation;
     paragraphStyle.headIndent = 20 * r->blockQuoteIndentation;
     paragraphStyle.tailIndent = 80; // ?
@@ -137,6 +140,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
 }
 
 void CommonMarkTextInput(NSMutableAttributedString *markdownString,
+                         NSDictionary<NSString *, id> *defaultTextAttributes,
                          CALayer *markdownLayer,
                          RTNMarkdownLayoutHelper *layoutHelper) {
   const MD_CHAR *input = [markdownString.string UTF8String];
@@ -151,12 +155,15 @@ void CommonMarkTextInput(NSMutableAttributedString *markdownString,
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {inputSize, markdownString, markdownLayer,
-                                      layoutHelper, 0};
+  CommonMarkTextInputData userdata = {
+      inputSize,     markdownString, defaultTextAttributes,
+      markdownLayer, layoutHelper,   0};
 
   md_parse(input, inputSize, &parser, &userdata);
 
   for (const AttributesPack &attributesPack : userdata.attributesStack) {
+    printf("working on attribute at %d + %d\n", attributesPack.location,
+           attributesPack.length);
     [markdownString addAttributes:attributesPack.attributes
                             range:NSMakeRange(attributesPack.location,
                                               attributesPack.length)];
