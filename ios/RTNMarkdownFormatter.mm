@@ -22,12 +22,13 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
                                      : [[NSMutableParagraphStyle alloc] init];
     paragraphStyle.firstLineHeadIndent = 20 * r->blockQuoteIndentation;
     paragraphStyle.headIndent = 20 * r->blockQuoteIndentation;
-    paragraphStyle.tailIndent = 80; // ?
     [attributes setValue:paragraphStyle forKey:NSParagraphStyleAttributeName];
     [attributes setValue:[UIColor yellowColor]
                   forKey:NSBackgroundColorAttributeName];
     [attributes setValue:[UIFont boldSystemFontOfSize:26]
                   forKey:NSFontAttributeName];
+    [attributes setValue:NULL
+                  forKey:RTNMarkdownBlockquoteStripeStyleAttributeName];
     break;
   }
   case MD_BLOCK_CODE: {
@@ -53,15 +54,6 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
 
   switch (type) {
   case MD_BLOCK_QUOTE:
-    CGRect blockRect = [r->layoutHelper
-        boundingRectForRange:NSMakeRange(block.location, block.length)];
-    CALayer *stripe = [CALayer new];
-    stripe.frame =
-        CGRectMake(blockRect.origin.x, blockRect.origin.y,
-                   10 * r->blockQuoteIndentation, blockRect.size.height);
-    stripe.backgroundColor = [UIColor blackColor].CGColor;
-    [r->markdownLayer addSublayer:stripe];
-
     r->blockQuoteIndentation--;
     break;
   }
@@ -140,9 +132,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
 }
 
 void CommonMarkTextInput(NSMutableAttributedString *markdownString,
-                         NSDictionary<NSString *, id> *defaultTextAttributes,
-                         CALayer *markdownLayer,
-                         RTNMarkdownLayoutHelper *layoutHelper) {
+                         NSDictionary<NSString *, id> *defaultTextAttributes) {
   const MD_CHAR *input = [markdownString.string UTF8String];
   const MD_SIZE inputSize = strlen(input);
 
@@ -155,15 +145,18 @@ void CommonMarkTextInput(NSMutableAttributedString *markdownString,
                       text_callback,
                       NULL,
                       NULL};
-  CommonMarkTextInputData userdata = {
-      inputSize,     markdownString, defaultTextAttributes,
-      markdownLayer, layoutHelper,   0};
+  CommonMarkTextInputData userdata = {inputSize, defaultTextAttributes, 0};
 
   md_parse(input, inputSize, &parser, &userdata);
 
   for (const AttributesPack &attributesPack : userdata.attributesStack) {
-    printf("working on attribute at %d + %d\n", attributesPack.location,
-           attributesPack.length);
+    if (attributesPack.length == 0) {
+      continue;
+    }
+    if (attributesPack.attributes.count == 0) {
+      continue;
+    }
+
     [markdownString addAttributes:attributesPack.attributes
                             range:NSMakeRange(attributesPack.location,
                                               attributesPack.length)];
