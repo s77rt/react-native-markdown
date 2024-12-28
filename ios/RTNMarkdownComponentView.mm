@@ -1,5 +1,7 @@
 #import <objc/runtime.h>
 
+#import <UIKit/UIKit.h>
+
 #import "RTNMarkdownComponentView.h"
 
 #import <React/RCTBackedTextInputDelegate.h>

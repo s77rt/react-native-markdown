@@ -1,6 +1,13 @@
 #import <objc/runtime.h>
 
+#import <UIKit/UIKit.h>
+
 #import "RTNMarkdown.h"
+#import "RTNMarkdownComponentView.h"
+#import "RTNMarkdownTextLayoutManagerDelegate.h"
+
+#import <React/RCTBackedTextInputViewProtocol.h>
+#import <React/RCTTextInputComponentView.h>
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
 #import <react/renderer/components/RTNMarkdownSpecs/EventEmitters.h>
@@ -15,6 +22,7 @@ using namespace facebook::react;
 @end
 
 @implementation RTNMarkdown {
+  id<NSTextLayoutManagerDelegate> _textLayoutManagerDelegate;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider {
@@ -32,7 +40,14 @@ using namespace facebook::react;
   UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
       [childMarkdownComponentView valueForKey:@"_backedTextInputView"];
 
-  // TODO use custom NSTextLayoutManager
+  if (@available(iOS 16.0, *)) {
+    // Only UITextView exposes a text layout manager
+    if ([backedTextInputView isKindOfClass:[UITextView class]]) {
+      _textLayoutManagerDelegate = [RTNMarkdownTextLayoutManagerDelegate new];
+      ((UITextView *)backedTextInputView).textLayoutManager.delegate =
+          _textLayoutManagerDelegate;
+    }
+  }
 
   [super mountChildComponentView:childMarkdownComponentView index:index];
 }
