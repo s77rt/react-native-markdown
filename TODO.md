@@ -3,3 +3,4 @@
 -   [ ] Verify that all types are checked (i.e. text, span, block) and their details
 -   [ ] Add syntax highlight - this must be done at the parser level i.e. md4c
 -   [ ] Test with latest RN version
+-   [ ] Add emoji support

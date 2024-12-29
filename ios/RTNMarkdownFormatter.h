@@ -1,9 +1,6 @@
 #import "md4c.h"
 #import <vector>
 
-NSString *const RTNMarkdownBlockquoteStripeStyleAttributeName =
-    @"RTNMarkdownBlockquoteStripeStyleAttributeName";
-
 typedef struct BlockNode {
   MD_BLOCKTYPE type;
   NSUInteger location;
@@ -22,7 +19,7 @@ typedef struct AttributesPack {
 typedef struct CommonMarkTextInputData {
   MD_SIZE inputSize;
   NSDictionary<NSString *, id> *defaultTextAttributes;
-  NSUInteger blockQuoteIndentation;
+  NSUInteger blockquoteIndentationLevel;
   std::vector<BlockNode> blockStack;
   std::vector<SpanNode> spanStack;
   std::vector<AttributesPack> attributesStack;

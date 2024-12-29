@@ -1,4 +1,5 @@
 #import "RTNMarkdownFormatter.h"
+#import "RTNMarkdownAttributes.h"
 #import <stdio.h>
 // TODO remove stdio import
 
@@ -13,22 +14,30 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
 
   switch (type) {
   case MD_BLOCK_QUOTE: {
-    r->blockQuoteIndentation++;
+    r->blockquoteIndentationLevel++;
+
+    CGFloat gapWidth = 4;
+    CGFloat stripeWidth = 4;
 
     NSParagraphStyle *defaultParagraphStyle =
         r->defaultTextAttributes[NSParagraphStyleAttributeName];
     NSMutableParagraphStyle *paragraphStyle =
         defaultParagraphStyle != nil ? [defaultParagraphStyle mutableCopy]
                                      : [[NSMutableParagraphStyle alloc] init];
-    paragraphStyle.firstLineHeadIndent = 20 * r->blockQuoteIndentation;
-    paragraphStyle.headIndent = 20 * r->blockQuoteIndentation;
+    paragraphStyle.firstLineHeadIndent =
+        (gapWidth + stripeWidth) * r->blockquoteIndentationLevel;
+    paragraphStyle.headIndent =
+        (gapWidth + stripeWidth) * r->blockquoteIndentationLevel;
     [attributes setValue:paragraphStyle forKey:NSParagraphStyleAttributeName];
-    [attributes setValue:[UIColor yellowColor]
-                  forKey:NSBackgroundColorAttributeName];
-    [attributes setValue:[UIFont boldSystemFontOfSize:26]
-                  forKey:NSFontAttributeName];
-    [attributes setValue:NULL
-                  forKey:RTNMarkdownBlockquoteStripeStyleAttributeName];
+
+    RTNMarkdownBlockquoteStyle *blockquoteStyle =
+        [RTNMarkdownBlockquoteStyle new];
+    blockquoteStyle.indentationLevel = r->blockquoteIndentationLevel;
+    blockquoteStyle.gapWidth = gapWidth;
+    blockquoteStyle.stripeWidth = stripeWidth;
+    blockquoteStyle.stripeColor = [UIColor blueColor];
+    [attributes setValue:blockquoteStyle
+                  forKey:RTNMarkdownBlockquoteStyleAttributeName];
     break;
   }
   case MD_BLOCK_CODE: {
@@ -54,7 +63,7 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
 
   switch (type) {
   case MD_BLOCK_QUOTE:
-    r->blockQuoteIndentation--;
+    r->blockquoteIndentationLevel--;
     break;
   }
 
