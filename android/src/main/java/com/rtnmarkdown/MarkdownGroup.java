@@ -20,7 +20,7 @@ public class MarkdownGroup extends ReactViewGroup {
   public void addView(View child, int index,
                       @Nullable ViewGroup.LayoutParams params) {
     ReactEditText editText = (ReactEditText)child;
-    editText.addTextChangedListener(new MarkdownFormatter());
+    editText.addTextChangedListener(new MarkdownTextWatcher());
     super.addView(child, index, params);
   }
 }

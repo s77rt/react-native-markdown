@@ -14,19 +14,12 @@ import com.facebook.react.views.view.ReactViewGroup;
 import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
 import com.rtnmarkdown.spans.MarkdownSpan;
 
-public class MarkdownFormatter implements TextWatcher {
-  @Override
-  public void beforeTextChanged(CharSequence s, int start, int count,
-                                int after) {}
+public class MarkdownFormatter {
+  static { System.loadLibrary("md4c-jni"); }
 
-  @Override
-  public void onTextChanged(CharSequence s, int start, int before, int count) {}
+  private native void parseJNI(String markdownString);
 
-  @Override
-  public void afterTextChanged(Editable s) {
-    if (s.length() > 4) {
-      MarkdownSpan foregroundSpan = new MarkdownForegroundColorSpan(Color.RED);
-      s.setSpan(foregroundSpan, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
+  public void format(Spannable markdownString) {
+    this.parseJNI(markdownString.toString());
   }
 }

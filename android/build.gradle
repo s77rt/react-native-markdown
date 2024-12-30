@@ -23,6 +23,12 @@ android {
     targetSdkVersion safeExtGet('targetSdkVersion', 33)
     buildConfigField("boolean", "IS_NEW_ARCHITECTURE_ENABLED", "true")
   }
+
+  externalNativeBuild {
+    cmake {
+      path "src/main/jni/CMakeLists.txt"
+    }
+  }
 }
 
 repositories {
