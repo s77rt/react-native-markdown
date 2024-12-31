@@ -8,6 +8,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
 import androidx.annotation.Nullable;
+import com.facebook.common.logging.FLog;
 import com.facebook.react.views.text.internal.span.ReactForegroundColorSpan;
 import com.facebook.react.views.text.internal.span.ReactSpan;
 import com.facebook.react.views.textinput.ReactEditText;
@@ -21,6 +22,7 @@ public class MarkdownGroup extends ReactViewGroup {
                       @Nullable ViewGroup.LayoutParams params) {
     ReactEditText editText = (ReactEditText)child;
     editText.addTextChangedListener(new MarkdownTextWatcher());
+    FLog.e("s77rt", "adding addTextChangedListener");
     super.addView(child, index, params);
   }
 }

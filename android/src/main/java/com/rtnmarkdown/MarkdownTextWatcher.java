@@ -27,7 +27,5 @@ public class MarkdownTextWatcher implements TextWatcher {
     FLog.e("s77rt", "afterTextChanged");
     MarkdownFormatter formatter = new MarkdownFormatter();
     formatter.format(s);
-    /*MarkdownSpan foregroundSpan = new MarkdownForegroundColorSpan(Color.RED);
-    s.setSpan(foregroundSpan, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
   }
 }
