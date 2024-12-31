@@ -2,5 +2,6 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(rtnmarkdown)
 
-add_library(md4c-jni SHARED md4c-jni.c)
-target_include_directories(md4c-jni PRIVATE ../../../../md4c/src/)
+add_library(parser-jni SHARED parser-jni.cpp ../../../../cpp/parser.cpp ../../../../md4c/src/md4c.c)
+target_include_directories(parser-jni PRIVATE ../../../../cpp/)
+target_include_directories(parser-jni PRIVATE ../../../../md4c/src/)

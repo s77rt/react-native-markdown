@@ -15,7 +15,7 @@ import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
 import com.rtnmarkdown.spans.MarkdownSpan;
 
 public class MarkdownFormatter {
-  static { System.loadLibrary("md4c-jni"); }
+  static { System.loadLibrary("parser-jni"); }
 
   private native void parseJNI(String markdownString);
 
