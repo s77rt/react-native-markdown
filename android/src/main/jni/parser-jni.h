@@ -6,9 +6,7 @@
 extern "C" {
 #endif
 
-JNIEXPORT void JNICALL Java_com_rtnmarkdown_MarkdownFormatter_parseJNI(JNIEnv *,
-                                                                       jobject,
-                                                                       jstring);
+JNIEXPORT jobjectArray JNICALL parseJNI(JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
 }

@@ -4,3 +4,5 @@
 -   [ ] Add syntax highlight - this must be done at the parser level i.e. md4c
 -   [ ] Test with latest RN version
 -   [ ] Add emoji support
+-   [ ] iOS: fix unwanted scroll on typing
+-   [ ] Android: fix double text changed callbacks

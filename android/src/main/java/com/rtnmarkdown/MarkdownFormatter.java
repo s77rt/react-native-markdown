@@ -17,9 +17,27 @@ import com.rtnmarkdown.spans.MarkdownSpan;
 public class MarkdownFormatter {
   static { System.loadLibrary("parser-jni"); }
 
-  private native void parseJNI(String markdownString);
+  private native AttributeFeature[] parseJNI(String markdownString);
 
   public void format(Spannable markdownString) {
-    this.parseJNI(markdownString.toString());
+    AttributeFeature[] attributes = this.parseJNI(markdownString.toString());
+    for (AttributeFeature attribute : attributes) {
+      FLog.e("s77rt", String.valueOf(attribute.attribute));
+      FLog.e("s77rt", String.valueOf(attribute.length));
+    }
   }
 }
+
+class AttributeFeature {
+  public int attribute;
+  public int location;
+  public int length;
+  public int data1;
+
+  AttributeFeature(int attribute, int location, int length, int data1) {
+    this.attribute = attribute;
+    this.location = location;
+    this.length = length;
+    this.data1 = data1;
+  }
+};

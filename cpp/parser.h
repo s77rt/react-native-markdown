@@ -6,6 +6,12 @@ typedef struct BlockNode {
   unsigned location;
   unsigned length;
   unsigned attributeIndex;
+  unsigned data1; /* Generic field:
+                     Attribute_Heading_Block: heading level
+                     Attribute_Heading: heading level
+                     Attribute_Blockquote_Block: indentation level
+                     Attribute_Blockquote: indentation level
+                  */
 } BlockNode;
 
 typedef MD_SPANTYPE SpanNode;
@@ -34,7 +40,9 @@ typedef struct AttributeFeature {
   unsigned length;
   unsigned data1; /* Generic field:
                      Attribute_Heading_Block: heading level
+                     Attribute_Heading: heading level
                      Attribute_Blockquote_Block: indentation level
+                     Attribute_Blockquote: indentation level
                   */
 } AttributeFeature;
 

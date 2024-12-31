@@ -18,6 +18,11 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
     r->attributeStack.push_back((AttributeFeature){Attribute_Code_Block, 0, 0});
     break;
   }
+  case MD_BLOCK_H: {
+    r->attributeStack.push_back((AttributeFeature){
+        Attribute_Heading_Block, 0, 0, ((MD_BLOCK_H_DETAIL *)detail)->level});
+    break;
+  }
   default: {
     r->attributeStack.push_back((AttributeFeature){Attribute_Unknown, 0, 0});
   }
@@ -76,9 +81,17 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
     block.length = line_close - block.location + 1;
 
     switch (block.type) {
-    case MD_BLOCK_H:
+    case MD_BLOCK_QUOTE:
+      r->attributeStack.push_back((AttributeFeature){
+          Attribute_Blockquote, offset_char, size_char, block.data1});
+      break;
+    case MD_BLOCK_CODE:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Heading, offset_char, size_char});
+          (AttributeFeature){Attribute_Code, offset_char, size_char});
+      break;
+    case MD_BLOCK_H:
+      r->attributeStack.push_back((AttributeFeature){
+          Attribute_Heading, offset_char, size_char, block.data1});
       break;
     }
   }

@@ -24,11 +24,10 @@ public class MarkdownTextWatcher implements TextWatcher {
 
   @Override
   public void afterTextChanged(Editable s) {
-    if (s.length() == 5) {
-      MarkdownFormatter formatter = new MarkdownFormatter();
-      formatter.format(s);
-      MarkdownSpan foregroundSpan = new MarkdownForegroundColorSpan(Color.RED);
-      s.setSpan(foregroundSpan, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    }
+    FLog.e("s77rt", "afterTextChanged");
+    MarkdownFormatter formatter = new MarkdownFormatter();
+    formatter.format(s);
+    /*MarkdownSpan foregroundSpan = new MarkdownForegroundColorSpan(Color.RED);
+    s.setSpan(foregroundSpan, 2, 4, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);*/
   }
 }
