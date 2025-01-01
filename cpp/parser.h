@@ -31,8 +31,8 @@ typedef enum Attribute {
   Attribute_Code_Block,
   Attribute_Code,
 
-  Attribute_HorizontalLine_Block,
-  Attribute_HorizontalLine,
+  Attribute_HorizontalRule_Block,
+  Attribute_HorizontalRule,
 
   Attribute_Bold,
   Attribute_Italic,

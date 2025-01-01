@@ -12,6 +12,7 @@ import com.facebook.common.logging.FLog;
 import com.facebook.react.views.textinput.ReactEditText;
 import com.facebook.react.views.view.ReactViewGroup;
 import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
+import com.rtnmarkdown.spans.MarkdownQuoteSpan;
 import com.rtnmarkdown.spans.MarkdownSpan;
 
 public class MarkdownFormatter {
@@ -32,8 +33,8 @@ public class MarkdownFormatter {
   private static final int Attribute_Code_Block = 7;
   private static final int Attribute_Code = 8;
 
-  private static final int Attribute_HorizontalLine_Block = 9;
-  private static final int Attribute_HorizontalLine = 10;
+  private static final int Attribute_HorizontalRule_Block = 9;
+  private static final int Attribute_HorizontalRule = 10;
 
   private static final int Attribute_Bold = 11;
   private static final int Attribute_Italic = 12;
@@ -68,15 +69,18 @@ public class MarkdownFormatter {
       int flags = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE;
 
       switch (attribute.attribute) {
+      case Attribute_Blockquote_Block: {
+        MarkdownSpan quoteSpan = new MarkdownQuoteSpan(Color.BLUE, 4, 4);
+        markdownString.setSpan(quoteSpan, start, end, flags);
+        break;
+      }
       case Attribute_Bold: {
         MarkdownSpan foregroundSpan =
             new MarkdownForegroundColorSpan(Color.RED);
         markdownString.setSpan(foregroundSpan, start, end, flags);
+        break;
       }
       }
-
-      FLog.e("s77rt", String.valueOf(attribute.attribute));
-      FLog.e("s77rt", String.valueOf(attribute.length));
     }
   }
 }

@@ -5,4 +5,3 @@
 -   [ ] Test with latest RN version
 -   [ ] Add emoji support
 -   [ ] iOS: fix unwanted scroll on typing
--   [ ] Android: fix double text changed callbacks

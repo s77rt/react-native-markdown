@@ -8,6 +8,16 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
       type, 0, 0, static_cast<unsigned int>(r->attributeStack.size())});
 
   switch (type) {
+  case MD_BLOCK_DOC: {
+    r->attributeStack.push_back(
+        (AttributeFeature){Attribute_Document_Block, 0, 0});
+    break;
+  }
+  case MD_BLOCK_H: {
+    r->attributeStack.push_back((AttributeFeature){
+        Attribute_Heading_Block, 0, 0, ((MD_BLOCK_H_DETAIL *)detail)->level});
+    break;
+  }
   case MD_BLOCK_QUOTE: {
     r->blockquoteIndentationLevel++;
     r->attributeStack.push_back((AttributeFeature){
@@ -18,9 +28,9 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
     r->attributeStack.push_back((AttributeFeature){Attribute_Code_Block, 0, 0});
     break;
   }
-  case MD_BLOCK_H: {
-    r->attributeStack.push_back((AttributeFeature){
-        Attribute_Heading_Block, 0, 0, ((MD_BLOCK_H_DETAIL *)detail)->level});
+  case MD_BLOCK_HR: {
+    r->attributeStack.push_back(
+        (AttributeFeature){Attribute_HorizontalRule_Block, 0, 0});
     break;
   }
   default: {
@@ -40,9 +50,13 @@ static int leave_block_callback(MD_BLOCKTYPE type, void *detail,
   r->attributeStack[block.attributeIndex].length = block.length;
 
   switch (type) {
-  case MD_BLOCK_QUOTE:
+  case MD_BLOCK_QUOTE: {
     r->blockquoteIndentationLevel--;
     break;
+  }
+  default: {
+    /* NO-OP */
+  }
   }
 
   r->blockStack.pop_back();
@@ -81,6 +95,14 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
     block.length = line_close - block.location + 1;
 
     switch (block.type) {
+    case MD_BLOCK_DOC:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Document, offset_char, size_char});
+      break;
+    case MD_BLOCK_H:
+      r->attributeStack.push_back((AttributeFeature){
+          Attribute_Heading, offset_char, size_char, block.data1});
+      break;
     case MD_BLOCK_QUOTE:
       r->attributeStack.push_back((AttributeFeature){
           Attribute_Blockquote, offset_char, size_char, block.data1});
@@ -89,23 +111,49 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
       r->attributeStack.push_back(
           (AttributeFeature){Attribute_Code, offset_char, size_char});
       break;
-    case MD_BLOCK_H:
-      r->attributeStack.push_back((AttributeFeature){
-          Attribute_Heading, offset_char, size_char, block.data1});
+    case MD_BLOCK_HR:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_HorizontalRule, offset_char, size_char});
       break;
+    default: {
+      /* NO-OP */
+    }
     }
   }
 
   for (const SpanNode &span : r->spanStack) {
     switch (span) {
-    case MD_SPAN_EM:
-      r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Italic, offset_char, size_char});
-      break;
     case MD_SPAN_STRONG:
       r->attributeStack.push_back(
           (AttributeFeature){Attribute_Bold, offset_char, size_char});
       break;
+    case MD_SPAN_EM:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Italic, offset_char, size_char});
+      break;
+    case MD_SPAN_A:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Link, offset_char, size_char});
+      break;
+    case MD_SPAN_IMG:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Image, offset_char, size_char});
+      break;
+    case MD_SPAN_CODE:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_InlineCode, offset_char, size_char});
+      break;
+    case MD_SPAN_DEL:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Strikethrough, offset_char, size_char});
+      break;
+    case MD_SPAN_U:
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Underline, offset_char, size_char});
+      break;
+    default: {
+      /* NO-OP */
+    }
     }
   }
 
