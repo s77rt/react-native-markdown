@@ -4,4 +4,5 @@
 -   [ ] Add syntax highlight - this must be done at the parser level i.e. md4c
 -   [ ] Test with latest RN version
 -   [ ] Add emoji support
--   [ ] iOS: fix unwanted scroll on typing
+-   [ ] Fix styles not applied correctly if text includes emojis
+-   [ ] Fix emojis inside blockquote

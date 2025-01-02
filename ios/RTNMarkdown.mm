@@ -3,11 +3,11 @@
 #import <UIKit/UIKit.h>
 
 #import "RTNMarkdown.h"
-#import "RTNMarkdownComponentView.h"
+#import "RTNMarkdownFormatter.h"
+#import "RTNMarkdownTextContentStorageDelegate.h"
 #import "RTNMarkdownTextLayoutManagerDelegate.h"
 
 #import <React/RCTBackedTextInputViewProtocol.h>
-#import <React/RCTTextInputComponentView.h>
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
 #import <react/renderer/components/RTNMarkdownSpecs/EventEmitters.h>
@@ -22,7 +22,12 @@ using namespace facebook::react;
 @end
 
 @implementation RTNMarkdown {
-  id<NSTextLayoutManagerDelegate> _textLayoutManagerDelegate;
+  UIView<RCTBackedTextInputViewProtocol> *_backedTextInputView;
+  RTNMarkdownFormatter *_formatter;
+  RTNMarkdownTextLayoutManagerDelegate<NSTextLayoutManagerDelegate>
+      *_textLayoutManagerDelegate;
+  RTNMarkdownTextContentStorageDelegate<NSTextContentStorageDelegate>
+      *_textContentStorageDelegate;
 }
 
 + (ComponentDescriptorProvider)componentDescriptorProvider {
@@ -32,24 +37,31 @@ using namespace facebook::react;
 - (void)mountChildComponentView:
             (UIView<RCTComponentViewProtocol> *)childComponentView
                           index:(NSInteger)index {
-  object_setClass((RCTTextInputComponentView *)childComponentView,
-                  objc_getClass("RTNMarkdownComponentView"));
-  RTNMarkdownComponentView *childMarkdownComponentView =
-      (RTNMarkdownComponentView *)childComponentView;
+  _backedTextInputView =
+      [childComponentView valueForKey:@"_backedTextInputView"];
 
-  UIView<RCTBackedTextInputViewProtocol> *backedTextInputView =
-      [childMarkdownComponentView valueForKey:@"_backedTextInputView"];
+  // Only UITextView exposes a text layout manager
+  if ([_backedTextInputView isKindOfClass:[UITextView class]]) {
+    UITextView *textView = (UITextView *)_backedTextInputView;
+    NSTextLayoutManager *textLayoutManager = textView.textLayoutManager;
+    NSTextContentStorage *textContentStorage =
+        (NSTextContentStorage *)textLayoutManager.textContentManager;
 
-  if (@available(iOS 16.0, *)) {
-    // Only UITextView exposes a text layout manager
-    if ([backedTextInputView isKindOfClass:[UITextView class]]) {
-      _textLayoutManagerDelegate = [RTNMarkdownTextLayoutManagerDelegate new];
-      ((UITextView *)backedTextInputView).textLayoutManager.delegate =
-          _textLayoutManagerDelegate;
-    }
+    _formatter = [RTNMarkdownFormatter new];
+
+    _textLayoutManagerDelegate = [RTNMarkdownTextLayoutManagerDelegate new];
+
+    _textContentStorageDelegate =
+        (RTNMarkdownTextContentStorageDelegate<NSTextContentStorageDelegate> *)
+            [RTNMarkdownTextContentStorageDelegate new];
+    _textContentStorageDelegate.backedTextInputView = _backedTextInputView;
+    _textContentStorageDelegate.formatter = _formatter;
+
+    textLayoutManager.delegate = _textLayoutManagerDelegate;
+    textContentStorage.delegate = _textContentStorageDelegate;
   }
 
-  [super mountChildComponentView:childMarkdownComponentView index:index];
+  [super mountChildComponentView:childComponentView index:index];
 }
 
 @end

@@ -2,8 +2,12 @@
 #import "RTNMarkdownAttributes.h"
 #import "parser.h"
 
-void CommonMarkTextInput(NSMutableAttributedString *markdownString,
-                         NSDictionary<NSString *, id> *defaultTextAttributes) {
+@implementation RTNMarkdownFormatter {
+}
+
+- (void)format:(NSMutableAttributedString *)markdownString
+    withDefaultTextAttributes:
+        (NSDictionary<NSString *, id> *)defaultTextAttributes {
   const char *input = [markdownString.string UTF8String];
 
   std::vector<AttributeFeature> attributes = parse(input);
@@ -62,3 +66,5 @@ void CommonMarkTextInput(NSMutableAttributedString *markdownString,
     }
   }
 }
+
+@end
