@@ -77,8 +77,7 @@ static int leave_span_callback(MD_SPANTYPE type, void *detail, void *userdata) {
 }
 
 static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
-                         MD_OFFSET offset, MD_SIZE size, MD_OFFSET offset_char,
-                         MD_SIZE size_char, MD_OFFSET line_open,
+                         MD_OFFSET offset, MD_SIZE size, MD_OFFSET line_open,
                          MD_OFFSET line_close, void *userdata) {
   ParserData *r = (ParserData *)userdata;
 
@@ -97,23 +96,23 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
     switch (block.type) {
     case MD_BLOCK_DOC:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Document, offset_char, size_char});
+          (AttributeFeature){Attribute_Document, offset, size});
       break;
     case MD_BLOCK_H:
-      r->attributeStack.push_back((AttributeFeature){
-          Attribute_Heading, offset_char, size_char, block.data1});
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Heading, offset, size, block.data1});
       break;
     case MD_BLOCK_QUOTE:
-      r->attributeStack.push_back((AttributeFeature){
-          Attribute_Blockquote, offset_char, size_char, block.data1});
+      r->attributeStack.push_back(
+          (AttributeFeature){Attribute_Blockquote, offset, size, block.data1});
       break;
     case MD_BLOCK_CODE:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Code, offset_char, size_char});
+          (AttributeFeature){Attribute_Code, offset, size});
       break;
     case MD_BLOCK_HR:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_HorizontalRule, offset_char, size_char});
+          (AttributeFeature){Attribute_HorizontalRule, offset, size});
       break;
     default: {
       /* NO-OP */
@@ -125,31 +124,31 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
     switch (span) {
     case MD_SPAN_STRONG:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Bold, offset_char, size_char});
+          (AttributeFeature){Attribute_Bold, offset, size});
       break;
     case MD_SPAN_EM:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Italic, offset_char, size_char});
+          (AttributeFeature){Attribute_Italic, offset, size});
       break;
     case MD_SPAN_A:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Link, offset_char, size_char});
+          (AttributeFeature){Attribute_Link, offset, size});
       break;
     case MD_SPAN_IMG:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Image, offset_char, size_char});
+          (AttributeFeature){Attribute_Image, offset, size});
       break;
     case MD_SPAN_CODE:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_InlineCode, offset_char, size_char});
+          (AttributeFeature){Attribute_InlineCode, offset, size});
       break;
     case MD_SPAN_DEL:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Strikethrough, offset_char, size_char});
+          (AttributeFeature){Attribute_Strikethrough, offset, size});
       break;
     case MD_SPAN_U:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Underline, offset_char, size_char});
+          (AttributeFeature){Attribute_Underline, offset, size});
       break;
     default: {
       /* NO-OP */
@@ -160,9 +159,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
   return 0;
 }
 
-std::vector<AttributeFeature> parse(const char *input) {
-  const unsigned inputSize = strlen(input);
-
+std::vector<AttributeFeature> parse(const wchar_t *input, unsigned inputSize) {
   MD_PARSER parser = {0,
                       0,
                       enter_block_callback,

@@ -1,5 +1,8 @@
+#define MD4C_USE_UTF16
 #include "md4c.h"
+
 #include <vector>
+#include <wchar.h>
 
 typedef struct BlockNode {
   MD_BLOCKTYPE type;
@@ -63,4 +66,4 @@ typedef struct ParserData {
   std::vector<AttributeFeature> attributeStack;
 } ParserData;
 
-std::vector<AttributeFeature> parse(const char *input);
+std::vector<AttributeFeature> parse(const wchar_t *input, unsigned inputSize);

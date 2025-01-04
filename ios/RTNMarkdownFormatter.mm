@@ -8,9 +8,12 @@
 - (void)format:(NSMutableAttributedString *)markdownString
     withDefaultTextAttributes:
         (NSDictionary<NSString *, id> *)defaultTextAttributes {
-  const char *input = [markdownString.string UTF8String];
+  NSData *input = [markdownString.string
+      dataUsingEncoding:NSUTF16LittleEndianStringEncoding];
+  const unsigned inputSize = markdownString.string.length;
 
-  std::vector<AttributeFeature> attributes = parse(input);
+  std::vector<AttributeFeature> attributes =
+      parse((wchar_t *)input.bytes, inputSize);
 
   for (const AttributeFeature &attribute : attributes) {
     if (attribute.length == 0) {
