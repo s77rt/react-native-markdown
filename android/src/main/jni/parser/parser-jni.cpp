@@ -8,9 +8,11 @@ static jmethodID JMID_AttributeFeature_constructor;
 
 JNIEXPORT jobjectArray JNICALL parseJNI(JNIEnv *env, jobject thiz,
                                         jstring markdownString) {
-  const char *input = env->GetStringUTFChars(markdownString, NULL);
-  std::vector<AttributeFeature> attributes = parse(input);
-  env->ReleaseStringUTFChars(markdownString, input);
+  const jsize inputSize = env->GetStringLength(markdownString);
+
+  const jchar *input = env->GetStringCritical(markdownString, NULL);
+  std::vector<AttributeFeature> attributes = parse((wchar_t *)input, inputSize);
+  env->ReleaseStringCritical(markdownString, input);
 
   jobjectArray ret =
       env->NewObjectArray(attributes.size(), JC_AttributeFeature, NULL);
