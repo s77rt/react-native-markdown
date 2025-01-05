@@ -15,8 +15,13 @@ import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
 import com.rtnmarkdown.spans.MarkdownSpan;
 
 public class MarkdownTextWatcher implements TextWatcher {
-  private final MarkdownFormatter mFormatter = new MarkdownFormatter();
+  @Nullable private MarkdownFormatter mFormatter;
   @Nullable private String mPreviousText;
+
+  public void setFormatter(MarkdownFormatter formatter) {
+    mFormatter = formatter;
+    mPreviousText = null;
+  }
 
   @Override
   public void beforeTextChanged(CharSequence s, int start, int count,
@@ -27,6 +32,10 @@ public class MarkdownTextWatcher implements TextWatcher {
 
   @Override
   public void afterTextChanged(Editable s) {
+    if (mFormatter == null) {
+      return;
+    }
+
     String newText = s.toString();
 
     if (mPreviousText != null && mPreviousText.equals(newText)) {

@@ -1,26 +1,54 @@
-import type { ViewProps } from "ViewPropTypes";
-import type { HostComponent, ColorValue } from "react-native";
-import codegenNativeComponent from "react-native/Libraries/Utilities/codegenNativeComponent";
-import { Float } from "react-native/Libraries/Types/CodegenTypes";
+import type { TextInputProps, ColorValue } from "react-native";
 
 type CommonStyle = {
 	backgroundColor?: ColorValue | undefined;
 	color?: ColorValue | undefined;
 	fontFamily?: string | undefined;
-	fontSize?: Float | undefined;
-	fontStyle?: string | undefined;
-	fontWeight?: string | undefined;
+	fontSize?: number | undefined;
+	fontStyle?: "normal" | "italic" | undefined;
+	fontWeight?:
+		| "normal"
+		| "bold"
+		| "100"
+		| "200"
+		| "300"
+		| "400"
+		| "500"
+		| "600"
+		| "700"
+		| "800"
+		| "900"
+		| 100
+		| 200
+		| 300
+		| 400
+		| 500
+		| 600
+		| 700
+		| 800
+		| 900
+		| "ultralight"
+		| "thin"
+		| "light"
+		| "medium"
+		| "regular"
+		| "semibold"
+		| "condensedBold"
+		| "condensed"
+		| "heavy"
+		| "black"
+		| undefined;
 };
 
-export interface RTNMarkdownNativeProps extends ViewProps {
+type RTNMarkdownProps = {
 	markdownStyles: {
 		headingBlock?: CommonStyle | undefined;
 		heading?: CommonStyle | undefined;
 
 		blockquoteBlock?:
 			| (CommonStyle & {
-					gapWidth?: Float | undefined;
-					stripeWidth?: Float | undefined;
+					gapWidth?: number | undefined;
+					stripeWidth?: number | undefined;
 					stripeColor?: ColorValue | undefined;
 			  })
 			| undefined;
@@ -37,8 +65,6 @@ export interface RTNMarkdownNativeProps extends ViewProps {
 		strikethrough?: CommonStyle | undefined;
 		underline?: CommonStyle | undefined;
 	};
-}
+};
 
-export default codegenNativeComponent<RTNMarkdownNativeProps>(
-	"RTNMarkdown"
-) as HostComponent<RTNMarkdownNativeProps>;
+export type MarkdownTextInputProps = TextInputProps & RTNMarkdownProps;

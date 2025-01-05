@@ -14,15 +14,20 @@ import com.facebook.react.views.text.internal.span.ReactSpan;
 import com.facebook.react.views.textinput.ReactEditText;
 import com.facebook.react.views.view.ReactViewGroup;
 
-public class MarkdownGroup extends ReactViewGroup {
-  public MarkdownGroup(Context context) { super(context); }
+public class Markdown extends ReactViewGroup {
+  private final MarkdownTextWatcher mTextWatcher = new MarkdownTextWatcher();
+
+  public Markdown(Context context) { super(context); }
+
+  public void setFormatter(MarkdownFormatter formatter) {
+    mTextWatcher.setFormatter(formatter);
+  }
 
   @Override
   public void addView(View child, int index,
                       @Nullable ViewGroup.LayoutParams params) {
     ReactEditText editText = (ReactEditText)child;
-    editText.addTextChangedListener(new MarkdownTextWatcher());
-    FLog.e("s77rt", "adding addTextChangedListener");
+    editText.addTextChangedListener(mTextWatcher);
     super.addView(child, index, params);
   }
 }

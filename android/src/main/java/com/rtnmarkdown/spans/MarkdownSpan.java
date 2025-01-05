@@ -1,3 +1,5 @@
 package com.rtnmarkdown.spans;
 
-public interface MarkdownSpan {}
+public interface MarkdownSpan {
+  MarkdownSpan clone();
+}
