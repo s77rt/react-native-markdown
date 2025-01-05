@@ -44,11 +44,8 @@ public class MarkdownManager extends ViewGroupManager<Markdown>
 
   @Override
   @ReactProp(name = "markdownStyles")
-  public void setMarkdownStyles(Markdown view, @Nullable ReadableMap value) {
-    if (value == null) {
-      view.setFormatter(null);
-      return;
-    }
-    view.setFormatter(new MarkdownFormatter(value));
+  public void setMarkdownStyles(Markdown view,
+                                @Nullable ReadableMap markdownStyles) {
+    view.setMarkdownStyles(markdownStyles);
   }
 }

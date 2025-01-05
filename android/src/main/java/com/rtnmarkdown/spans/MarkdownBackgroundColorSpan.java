@@ -1,6 +1,8 @@
 package com.rtnmarkdown.spans;
 
+import android.graphics.Typeface;
 import android.text.style.BackgroundColorSpan;
+import androidx.annotation.Nullable;
 
 public class MarkdownBackgroundColorSpan
     extends BackgroundColorSpan implements MarkdownSpan {
@@ -12,7 +14,8 @@ public class MarkdownBackgroundColorSpan
   }
 
   @Override
-  public MarkdownBackgroundColorSpan clone() {
+  public MarkdownBackgroundColorSpan
+  hardClone(@Nullable Typeface defaultTypeface) {
     return new MarkdownBackgroundColorSpan(mColor);
   }
 }

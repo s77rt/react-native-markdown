@@ -28,6 +28,7 @@ export interface RTNMarkdownNativeProps extends ViewProps {
 		h6?: CommonStyle | undefined;
 		blockquote?: BlockquoteStyle | undefined;
 		codeblock?: CommonStyle | undefined;
+		horizontalRule?: CommonStyle | undefined;
 
 		bold?: CommonStyle | undefined;
 		italic?: CommonStyle | undefined;

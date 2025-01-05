@@ -15,8 +15,14 @@ import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
 import com.rtnmarkdown.spans.MarkdownSpan;
 
 public class MarkdownTextWatcher implements TextWatcher {
+  private ReactEditText mReactEditText;
   @Nullable private MarkdownFormatter mFormatter;
   @Nullable private String mPreviousText;
+
+  public void watch(ReactEditText editText) {
+    mReactEditText = editText;
+    mReactEditText.addTextChangedListener(this);
+  }
 
   public void setFormatter(MarkdownFormatter formatter) {
     mFormatter = formatter;
@@ -42,7 +48,7 @@ public class MarkdownTextWatcher implements TextWatcher {
       return;
     }
 
-    mFormatter.format(s);
+    mFormatter.format(s, mReactEditText.getTypeface());
 
     mPreviousText = newText;
   }

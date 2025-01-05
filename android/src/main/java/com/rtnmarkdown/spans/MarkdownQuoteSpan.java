@@ -1,6 +1,8 @@
 package com.rtnmarkdown.spans;
 
+import android.graphics.Typeface;
 import android.text.style.QuoteSpan;
+import androidx.annotation.Nullable;
 
 public class MarkdownQuoteSpan extends QuoteSpan implements MarkdownSpan {
   private int mColor;
@@ -15,7 +17,7 @@ public class MarkdownQuoteSpan extends QuoteSpan implements MarkdownSpan {
   }
 
   @Override
-  public MarkdownQuoteSpan clone() {
+  public MarkdownQuoteSpan hardClone(@Nullable Typeface defaultTypeface) {
     return new MarkdownQuoteSpan(mColor, mStripeWidth, mGapWidth);
   }
 }
