@@ -12,28 +12,28 @@ type CommonStyle = {
 	fontWeight?: string | undefined;
 };
 
+type BlockquoteStyle = CommonStyle & {
+	gapWidth?: Float | undefined;
+	stripeWidth?: Float | undefined;
+	stripeColor?: ColorValue | undefined;
+};
+
 export interface RTNMarkdownNativeProps extends ViewProps {
 	markdownStyles: {
-		headingBlock?: CommonStyle | undefined;
-		heading?: CommonStyle | undefined;
-
-		blockquoteBlock?:
-			| (CommonStyle & {
-					gapWidth?: Float | undefined;
-					stripeWidth?: Float | undefined;
-					stripeColor?: ColorValue | undefined;
-			  })
-			| undefined;
-		blockquote?: CommonStyle | undefined;
-
-		codeBlock?: CommonStyle | undefined;
-		code?: CommonStyle | undefined;
+		h1?: CommonStyle | undefined;
+		h2?: CommonStyle | undefined;
+		h3?: CommonStyle | undefined;
+		h4?: CommonStyle | undefined;
+		h5?: CommonStyle | undefined;
+		h6?: CommonStyle | undefined;
+		blockquote?: BlockquoteStyle | undefined;
+		codeblock?: CommonStyle | undefined;
 
 		bold?: CommonStyle | undefined;
 		italic?: CommonStyle | undefined;
 		link?: CommonStyle | undefined;
 		image?: CommonStyle | undefined;
-		inlineCode?: CommonStyle | undefined;
+		code?: CommonStyle | undefined;
 		strikethrough?: CommonStyle | undefined;
 		underline?: CommonStyle | undefined;
 	};

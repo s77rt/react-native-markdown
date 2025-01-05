@@ -24,28 +24,19 @@ public class MarkdownFormatter {
   /* Copied from cpp/parser/parser.h */
   private static final int Attribute_Unknown = 0;
 
-  private static final int Attribute_Document_Block = 1;
-  private static final int Attribute_Document = 2;
+  private static final int Attribute_Document = 1;
+  private static final int Attribute_Heading = 2;
+  private static final int Attribute_Blockquote = 3;
+  private static final int Attribute_Codeblock = 4;
+  private static final int Attribute_HorizontalRule = 5;
 
-  private static final int Attribute_Heading_Block = 3;
-  private static final int Attribute_Heading = 4;
-
-  private static final int Attribute_Blockquote_Block = 5;
-  private static final int Attribute_Blockquote = 6;
-
-  private static final int Attribute_Code_Block = 7;
-  private static final int Attribute_Code = 8;
-
-  private static final int Attribute_HorizontalRule_Block = 9;
-  private static final int Attribute_HorizontalRule = 10;
-
-  private static final int Attribute_Bold = 11;
-  private static final int Attribute_Italic = 12;
-  private static final int Attribute_Link = 13;
-  private static final int Attribute_Image = 14;
-  private static final int Attribute_InlineCode = 15;
-  private static final int Attribute_Strikethrough = 16;
-  private static final int Attribute_Underline = 17;
+  private static final int Attribute_Bold = 6;
+  private static final int Attribute_Italic = 7;
+  private static final int Attribute_Link = 8;
+  private static final int Attribute_Image = 9;
+  private static final int Attribute_Code = 10;
+  private static final int Attribute_Strikethrough = 11;
+  private static final int Attribute_Underline = 12;
   /* end */
 
   private final MarkdownSpan[][] mSpans =
@@ -76,7 +67,7 @@ public class MarkdownFormatter {
             new MarkdownForegroundColorSpan(headingBlock.getInt("color"));
       }
 
-      mSpans[Attribute_Heading_Block] = spans;
+      mSpans[Attribute_Heading] = spans;
     }
   }
 

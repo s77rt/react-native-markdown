@@ -9,28 +9,27 @@ static int enter_block_callback(MD_BLOCKTYPE type, void *detail,
 
   switch (type) {
   case MD_BLOCK_DOC: {
-    r->attributeStack.push_back(
-        (AttributeFeature){Attribute_Document_Block, 0, 0});
+    r->attributeStack.push_back((AttributeFeature){Attribute_Document, 0, 0});
     break;
   }
   case MD_BLOCK_H: {
     r->attributeStack.push_back((AttributeFeature){
-        Attribute_Heading_Block, 0, 0, ((MD_BLOCK_H_DETAIL *)detail)->level});
+        Attribute_Heading, 0, 0, ((MD_BLOCK_H_DETAIL *)detail)->level});
     break;
   }
   case MD_BLOCK_QUOTE: {
     r->blockquoteIndentationLevel++;
     r->attributeStack.push_back((AttributeFeature){
-        Attribute_Blockquote_Block, 0, 0, r->blockquoteIndentationLevel});
+        Attribute_Blockquote, 0, 0, r->blockquoteIndentationLevel});
     break;
   }
   case MD_BLOCK_CODE: {
-    r->attributeStack.push_back((AttributeFeature){Attribute_Code_Block, 0, 0});
+    r->attributeStack.push_back((AttributeFeature){Attribute_Codeblock, 0, 0});
     break;
   }
   case MD_BLOCK_HR: {
     r->attributeStack.push_back(
-        (AttributeFeature){Attribute_HorizontalRule_Block, 0, 0});
+        (AttributeFeature){Attribute_HorizontalRule, 0, 0});
     break;
   }
   default: {
@@ -92,32 +91,6 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
       block.location = line_open;
     }
     block.length = line_close - block.location + 1;
-
-    switch (block.type) {
-    case MD_BLOCK_DOC:
-      r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Document, offset, size});
-      break;
-    case MD_BLOCK_H:
-      r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Heading, offset, size, block.data1});
-      break;
-    case MD_BLOCK_QUOTE:
-      r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Blockquote, offset, size, block.data1});
-      break;
-    case MD_BLOCK_CODE:
-      r->attributeStack.push_back(
-          (AttributeFeature){Attribute_Code, offset, size});
-      break;
-    case MD_BLOCK_HR:
-      r->attributeStack.push_back(
-          (AttributeFeature){Attribute_HorizontalRule, offset, size});
-      break;
-    default: {
-      /* NO-OP */
-    }
-    }
   }
 
   for (const SpanNode &span : r->spanStack) {
@@ -140,7 +113,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
       break;
     case MD_SPAN_CODE:
       r->attributeStack.push_back(
-          (AttributeFeature){Attribute_InlineCode, offset, size});
+          (AttributeFeature){Attribute_Code, offset, size});
       break;
     case MD_SPAN_DEL:
       r->attributeStack.push_back(

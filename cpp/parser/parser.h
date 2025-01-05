@@ -12,12 +12,6 @@ typedef struct BlockNode {
   unsigned location;
   unsigned length;
   unsigned attributeIndex;
-  unsigned data1; /* Generic field:
-                     Attribute_Heading_Block: heading level
-                     Attribute_Heading: heading level
-                     Attribute_Blockquote_Block: indentation level
-                     Attribute_Blockquote: indentation level
-                  */
 } BlockNode;
 
 typedef MD_SPANTYPE SpanNode;
@@ -25,26 +19,17 @@ typedef MD_SPANTYPE SpanNode;
 typedef enum Attribute {
   Attribute_Unknown = 0,
 
-  Attribute_Document_Block,
   Attribute_Document,
-
-  Attribute_Heading_Block,
   Attribute_Heading,
-
-  Attribute_Blockquote_Block,
   Attribute_Blockquote,
-
-  Attribute_Code_Block,
-  Attribute_Code,
-
-  Attribute_HorizontalRule_Block,
+  Attribute_Codeblock,
   Attribute_HorizontalRule,
 
   Attribute_Bold,
   Attribute_Italic,
   Attribute_Link,
   Attribute_Image,
-  Attribute_InlineCode,
+  Attribute_Code,
   Attribute_Strikethrough,
   Attribute_Underline,
 } Attribute;
@@ -54,9 +39,7 @@ typedef struct AttributeFeature {
   unsigned location;
   unsigned length;
   unsigned data1; /* Generic field:
-                     Attribute_Heading_Block: heading level
                      Attribute_Heading: heading level
-                     Attribute_Blockquote_Block: indentation level
                      Attribute_Blockquote: indentation level
                   */
 } AttributeFeature;

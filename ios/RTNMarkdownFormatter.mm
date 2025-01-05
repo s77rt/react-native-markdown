@@ -26,7 +26,7 @@
     NSRange range = NSMakeRange(attribute.location, attribute.length);
 
     switch (attribute.attribute) {
-    case Attribute_Blockquote_Block: {
+    case Attribute_Blockquote: {
       NSUInteger indentationLevel = attribute.data1;
       CGFloat gapWidth = 4;
       CGFloat stripeWidth = 4;
