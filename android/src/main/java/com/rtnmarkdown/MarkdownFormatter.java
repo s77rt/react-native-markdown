@@ -93,14 +93,32 @@ public class MarkdownFormatter {
         }
       }
       if (styleValue.hasKey("fontSize")) {
-        // FIXME
         spansList.add(new MarkdownAbsoluteSizeSpan(
-            (int)Math.ceil(PixelUtil.toDIPFromPixel(
+            (int)Math.ceil(PixelUtil.toPixelFromDIP(
                 (float)styleValue.getDouble("fontSize")))));
       }
 
       if (styleKey == "blockquote") {
-        /* ... */
+        {
+          boolean hasStripeColor = styleValue.hasKey("stripeColor");
+          boolean hasStripeWidth = styleValue.hasKey("stripeWidth");
+          boolean hasGapWidth = styleValue.hasKey("gapWidth");
+          if (hasStripeColor || hasStripeWidth || hasGapWidth) {
+            int stripeColor = hasStripeColor ? styleValue.getInt("stripeColor")
+                                             : ReactConstants.UNSET;
+            int stripeWidth =
+                hasStripeWidth
+                    ? (int)Math.ceil(PixelUtil.toPixelFromDIP(
+                          (float)styleValue.getDouble("stripeWidth")))
+                    : ReactConstants.UNSET;
+            int gapWidth = hasGapWidth
+                               ? (int)Math.ceil(PixelUtil.toPixelFromDIP(
+                                     (float)styleValue.getDouble("gapWidth")))
+                               : ReactConstants.UNSET;
+            spansList.add(
+                new MarkdownQuoteSpan(stripeColor, stripeWidth, gapWidth));
+          }
+        }
       }
 
       if (spansList.isEmpty()) {
