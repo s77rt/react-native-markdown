@@ -4,3 +4,8 @@
 -   [ ] Test code block with background
 -   [ ] Add letterSpacing and lineheight (follow up?)
 -   [ ] Add (surface?)Color
+-   [ ] Verify that text is reforammted on changing styles (or follow up?) + iOS does not seem to re-render unchanged paragraphs
+-   [ ] Android formatter use entryIterator
+-   [ ] Android remove private members from spans
+-   [ ] Android rename spansList to styleSpans
+-   [ ] rename hardClone and hardCopy

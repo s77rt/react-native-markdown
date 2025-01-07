@@ -8,9 +8,21 @@
   NSAttributedString *_previousFormattedString;
 }
 
+- (void)setFormatter:(RTNMarkdownFormatter *)formatter {
+  if (_formatter != formatter) {
+    _formatter = formatter;
+    _previousString = nil;
+    _previousFormattedString = nil;
+  }
+}
+
 - (NSTextParagraph *)textContentStorage:
                          (NSTextContentStorage *)textContentStorage
                  textParagraphWithRange:(NSRange)range {
+  if (!_formatter) {
+    return nil;
+  }
+
   if (_previousString &&
       [_previousString
           isEqualToAttributedString:textContentStorage.attributedString]) {

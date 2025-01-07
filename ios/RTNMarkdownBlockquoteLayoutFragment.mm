@@ -1,5 +1,4 @@
 #import "RTNMarkdownBlockquoteLayoutFragment.h"
-#import "RTNMarkdownAttributes.h"
 
 @interface RTNMarkdownBlockquoteLayoutFragment ()
 @end

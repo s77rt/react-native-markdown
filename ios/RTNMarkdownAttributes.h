@@ -1,7 +1,7 @@
+NS_ASSUME_NONNULL_BEGIN
+
 NSString *const RTNMarkdownBlockquoteStyleAttributeName =
     @"RTNMarkdownBlockquoteStyleAttributeName";
-
-NS_ASSUME_NONNULL_BEGIN
 
 @interface RTNMarkdownBlockquoteStyle : NSObject
 @property(nonatomic, assign) NSUInteger indentationLevel;
