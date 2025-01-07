@@ -41,7 +41,7 @@ public class MarkdownTypefaceSpan extends TypefaceSpan implements MarkdownSpan {
   }
 
   @Override
-  public MarkdownTypefaceSpan hardClone(@Nullable Typeface defaultTypeface) {
+  public MarkdownTypefaceSpan spanWith(@Nullable Typeface defaultTypeface) {
     return new MarkdownTypefaceSpan(defaultTypeface, mStyle, mWeight, mFamily,
                                     mAssetManager);
   }

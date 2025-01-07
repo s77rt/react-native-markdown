@@ -2,8 +2,6 @@
 #import "RTNMarkdownAttributeWrapper.h"
 #import "RTNMarkdownAttributes.h"
 
-#import <React/RCTUtils.h>
-
 #import "parser.h"
 
 @implementation RTNMarkdownFormatter {

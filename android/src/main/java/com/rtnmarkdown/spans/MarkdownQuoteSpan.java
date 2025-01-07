@@ -17,7 +17,7 @@ public class MarkdownQuoteSpan extends QuoteSpan implements MarkdownSpan {
   }
 
   @Override
-  public MarkdownQuoteSpan hardClone(@Nullable Typeface defaultTypeface) {
+  public MarkdownQuoteSpan spanWith(@Nullable Typeface defaultTypeface) {
     return new MarkdownQuoteSpan(mStripeColor, mStripeWidth, mGapWidth);
   }
 }

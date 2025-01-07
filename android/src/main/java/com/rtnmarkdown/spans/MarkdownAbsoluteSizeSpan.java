@@ -14,8 +14,7 @@ public class MarkdownAbsoluteSizeSpan
   }
 
   @Override
-  public MarkdownAbsoluteSizeSpan
-  hardClone(@Nullable Typeface defaultTypeface) {
+  public MarkdownAbsoluteSizeSpan spanWith(@Nullable Typeface defaultTypeface) {
     return new MarkdownAbsoluteSizeSpan(mSize);
   }
 }

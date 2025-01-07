@@ -1,21 +1,12 @@
 package com.rtnmarkdown;
 
 import android.content.Context;
-import android.graphics.Color;
 import android.graphics.Typeface;
-import android.text.Editable;
 import android.text.Spannable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.ViewGroup;
-import androidx.annotation.Nullable;
-import com.facebook.common.logging.FLog;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.uimanager.PixelUtil;
 import com.facebook.react.views.text.ReactTypefaceUtils;
-import com.facebook.react.views.textinput.ReactEditText;
-import com.facebook.react.views.view.ReactViewGroup;
 import com.rtnmarkdown.spans.MarkdownAbsoluteSizeSpan;
 import com.rtnmarkdown.spans.MarkdownBackgroundColorSpan;
 import com.rtnmarkdown.spans.MarkdownForegroundColorSpan;
@@ -24,6 +15,8 @@ import com.rtnmarkdown.spans.MarkdownSpan;
 import com.rtnmarkdown.spans.MarkdownTypefaceSpan;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MarkdownFormatter {
   static { System.loadLibrary("parser-jni"); }
@@ -46,32 +39,25 @@ public class MarkdownFormatter {
   private static final int Attribute_Underline = 12;
   /* end */
 
-  private static final String[] StyleKeys = {
-      "h1",         "h2",        "h3",
-      "h4",         "h5",        "h6",
-      "blockquote", "codeblock", "horizontalRule",
-      "bold",       "italic",    "link",
-      "image",      "code",      "strikethrough",
-      "underline"};
-
   private final HashMap<String, MarkdownSpan[]> mSpans =
       new HashMap<String, MarkdownSpan[]>();
 
   public MarkdownFormatter(Context context, ReadableMap markdownStyles) {
-    for (String styleKey : StyleKeys) {
-      if (!markdownStyles.hasKey(styleKey)) {
-        continue;
-      }
+    Iterator<Map.Entry<String, Object>> iterator =
+        markdownStyles.getEntryIterator();
+    while (iterator.hasNext()) {
+      Map.Entry<String, Object> entry = iterator.next();
 
-      ReadableMap styleValue = markdownStyles.getMap(styleKey);
-      ArrayList<MarkdownSpan> spansList = new ArrayList<MarkdownSpan>();
+      String styleKey = entry.getKey();
+      ReadableMap styleValue = (ReadableMap)entry.getValue();
+      ArrayList<MarkdownSpan> styleSpansList = new ArrayList<MarkdownSpan>();
 
       if (styleValue.hasKey("backgroundColor")) {
-        spansList.add(new MarkdownBackgroundColorSpan(
+        styleSpansList.add(new MarkdownBackgroundColorSpan(
             styleValue.getInt("backgroundColor")));
       }
       if (styleValue.hasKey("color")) {
-        spansList.add(
+        styleSpansList.add(
             new MarkdownForegroundColorSpan(styleValue.getInt("color")));
       }
       {
@@ -88,12 +74,12 @@ public class MarkdownFormatter {
           String family =
               hasFontFamily ? styleValue.getString("fontFamily") : null;
 
-          spansList.add(new MarkdownTypefaceSpan(null, style, weight, family,
-                                                 context.getAssets()));
+          styleSpansList.add(new MarkdownTypefaceSpan(
+              null, style, weight, family, context.getAssets()));
         }
       }
       if (styleValue.hasKey("fontSize")) {
-        spansList.add(new MarkdownAbsoluteSizeSpan(
+        styleSpansList.add(new MarkdownAbsoluteSizeSpan(
             (int)Math.ceil(PixelUtil.toPixelFromDIP(
                 (float)styleValue.getDouble("fontSize")))));
       }
@@ -115,18 +101,18 @@ public class MarkdownFormatter {
                                ? (int)Math.ceil(PixelUtil.toPixelFromDIP(
                                      (float)styleValue.getDouble("gapWidth")))
                                : ReactConstants.UNSET;
-            spansList.add(
+            styleSpansList.add(
                 new MarkdownQuoteSpan(stripeColor, stripeWidth, gapWidth));
           }
         }
       }
 
-      if (spansList.isEmpty()) {
+      if (styleSpansList.isEmpty()) {
         continue;
       }
 
-      MarkdownSpan[] spans = spansList.toArray(new MarkdownSpan[0]);
-      mSpans.put(styleKey, spans);
+      MarkdownSpan[] styleSpans = styleSpansList.toArray(new MarkdownSpan[0]);
+      mSpans.put(styleKey, styleSpans);
     }
   }
 
@@ -202,7 +188,7 @@ public class MarkdownFormatter {
       int flags = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE;
 
       for (MarkdownSpan span : spans) {
-        markdownString.setSpan(span.hardClone(defaultTypeface), start, end,
+        markdownString.setSpan(span.spanWith(defaultTypeface), start, end,
                                flags);
       }
     }

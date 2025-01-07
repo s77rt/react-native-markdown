@@ -15,7 +15,7 @@ public class MarkdownForegroundColorSpan
 
   @Override
   public MarkdownForegroundColorSpan
-  hardClone(@Nullable Typeface defaultTypeface) {
+  spanWith(@Nullable Typeface defaultTypeface) {
     return new MarkdownForegroundColorSpan(mColor);
   }
 }

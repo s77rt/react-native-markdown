@@ -1,8 +1,0 @@
--   [ ] Test with latest RN version
--   [ ] Remove unused imports
--   [ ] Verify that text is reforammted on changing styles (or follow up?) + iOS does not seem to re-render unchanged paragraphs
--   [ ] Android formatter use entryIterator
--   [ ] Android remove private members from spans
--   [ ] Android rename spansList to styleSpans
--   [ ] rename hardClone to spanWith
--   [ ] Use ceil in blockquote renderer

@@ -1,7 +1,5 @@
 #import <objc/runtime.h>
 
-#import <UIKit/UIKit.h>
-
 #import "RTNMarkdown.h"
 #import "RTNMarkdownComponentProps.h"
 #import "RTNMarkdownFormatter.h"
