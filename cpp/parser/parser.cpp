@@ -134,7 +134,7 @@ static int text_callback(MD_TEXTTYPE type, const MD_CHAR *text,
 
 std::vector<AttributeFeature> parse(const wchar_t *input, unsigned inputSize) {
   MD_PARSER parser = {0,
-                      0,
+                      MD_FLAG_PERMISSIVEAUTOLINKS | MD_FLAG_STRIKETHROUGH,
                       enter_block_callback,
                       leave_block_callback,
                       enter_span_callback,
