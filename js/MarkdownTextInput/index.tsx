@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import { TextInput, processColor } from "react-native";
 import RTNMarkdownNativeComponent from "../RTNMarkdownNativeComponent";
-import { MarkdownTextInputProps } from "./types";
+import type { MarkdownTextInputProps } from "../types";
 
 const processFontWeight = (fontWeight: any) => {
 	if (typeof fontWeight === "number") {

@@ -1,6 +1,6 @@
 import React from "react";
 import { TextInput } from "react-native";
-import { MarkdownTextInputProps } from "./types";
+import type { MarkdownTextInputProps } from "../types";
 
 function MarkdownTextInput({
 	_markdownStyles,

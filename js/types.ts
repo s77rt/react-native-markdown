@@ -46,26 +46,30 @@ type BlockquoteStyle = CommonStyle & {
 	stripeColor?: ColorValue | undefined;
 };
 
-type RTNMarkdownProps = {
-	markdownStyles: {
-		h1?: CommonStyle | undefined;
-		h2?: CommonStyle | undefined;
-		h3?: CommonStyle | undefined;
-		h4?: CommonStyle | undefined;
-		h5?: CommonStyle | undefined;
-		h6?: CommonStyle | undefined;
-		blockquote?: BlockquoteStyle | undefined;
-		codeblock?: CommonStyle | undefined;
-		horizontalRule?: CommonStyle | undefined;
+type MarkdownStyles = {
+	h1?: CommonStyle | undefined;
+	h2?: CommonStyle | undefined;
+	h3?: CommonStyle | undefined;
+	h4?: CommonStyle | undefined;
+	h5?: CommonStyle | undefined;
+	h6?: CommonStyle | undefined;
+	blockquote?: BlockquoteStyle | undefined;
+	codeblock?: CommonStyle | undefined;
+	horizontalRule?: CommonStyle | undefined;
 
-		bold?: CommonStyle | undefined;
-		italic?: CommonStyle | undefined;
-		link?: CommonStyle | undefined;
-		image?: CommonStyle | undefined;
-		code?: CommonStyle | undefined;
-		strikethrough?: CommonStyle | undefined;
-		underline?: CommonStyle | undefined;
-	};
+	bold?: CommonStyle | undefined;
+	italic?: CommonStyle | undefined;
+	link?: CommonStyle | undefined;
+	image?: CommonStyle | undefined;
+	code?: CommonStyle | undefined;
+	strikethrough?: CommonStyle | undefined;
+	underline?: CommonStyle | undefined;
 };
 
-export type MarkdownTextInputProps = TextInputProps & RTNMarkdownProps;
+type MarkdownProps = {
+	markdownStyles: MarkdownStyles;
+};
+
+type MarkdownTextInputProps = TextInputProps & MarkdownProps;
+
+export type { MarkdownStyles, MarkdownTextInputProps };
