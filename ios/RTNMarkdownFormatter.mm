@@ -52,6 +52,37 @@
         }
       }
 
+      if ([styleKey isEqualToString:@"blockquote"]) {
+        {
+          BOOL hasStripeColor = styleValue[@"stripeColor"] != [NSNull null];
+          BOOL hasStripeWidth = styleValue[@"stripeWidth"] != [NSNull null];
+          BOOL hasGapWidth = styleValue[@"gapWidth"] != [NSNull null];
+          if (hasStripeColor || hasStripeWidth || hasGapWidth) {
+            UIColor *stripeColor =
+                hasStripeColor ? styleValue[@"stripeColor"] : nil;
+            CGFloat stripeWidth =
+                hasStripeWidth
+                    ? ((NSNumber *)styleValue[@"stripeWidth"]).floatValue
+                    : 0;
+            CGFloat gapWidth =
+                hasGapWidth ? ((NSNumber *)styleValue[@"gapWidth"]).floatValue
+                            : 0;
+
+            [stylesAttributes
+                setValue:[[RTNMarkdownBlockquoteParagraphStyleWrapper alloc]
+                             initWithStripeWidth:stripeWidth
+                                    withGapWidth:gapWidth]
+                  forKey:NSParagraphStyleAttributeName];
+            [stylesAttributes
+                setValue:[[RTNMarkdownBlockquoteStyleWrapper alloc]
+                             initWithStripeColor:stripeColor
+                                 withStripeWidth:stripeWidth
+                                    withGapWidth:gapWidth]
+                  forKey:RTNMarkdownBlockquoteStyleAttributeName];
+          }
+        }
+      }
+
       if (stylesAttributes.count == 0) {
         continue;
       }
@@ -158,51 +189,6 @@
                                                data1:attribute.data1]
                              range:range];
     }
-
-    /*switch (attribute.attribute) {
-    case Attribute_Blockquote: {
-      NSUInteger indentationLevel = attribute.data1;
-      CGFloat gapWidth = 4;
-      CGFloat stripeWidth = 4;
-
-      NSParagraphStyle *defaultParagraphStyle =
-          defaultTextAttributes[NSParagraphStyleAttributeName];
-      NSMutableParagraphStyle *paragraphStyle =
-          defaultParagraphStyle != nil ? [defaultParagraphStyle mutableCopy]
-                                       : [[NSMutableParagraphStyle alloc] init];
-      paragraphStyle.firstLineHeadIndent =
-          (gapWidth + stripeWidth) * indentationLevel;
-      paragraphStyle.headIndent = (gapWidth + stripeWidth) * indentationLevel;
-      [markdownString addAttribute:NSParagraphStyleAttributeName
-                             value:paragraphStyle
-                             range:range];
-
-      RTNMarkdownBlockquoteStyle *blockquoteStyle =
-          [RTNMarkdownBlockquoteStyle new];
-      blockquoteStyle.indentationLevel = indentationLevel;
-      blockquoteStyle.gapWidth = gapWidth;
-      blockquoteStyle.stripeWidth = stripeWidth;
-      blockquoteStyle.stripeColor = [UIColor blueColor];
-      [markdownString
-          addAttribute:RTNMarkdownBlockquoteStyleAttributeName
-                 value:[blockquoteStyle hardCopy:defaultTextAttributes
-                                           data1:indentationLevel]
-                 range:range];
-      break;
-    }
-    case Attribute_Bold: {
-      [markdownString addAttribute:NSForegroundColorAttributeName
-                             value:[UIColor greenColor]
-                             range:range];
-      break;
-    }
-    case Attribute_Italic: {
-      [markdownString addAttribute:NSBackgroundColorAttributeName
-                             value:[UIColor redColor]
-                             range:range];
-      break;
-    }
-    }*/
   }
 }
 

@@ -20,4 +20,17 @@ NS_ASSUME_NONNULL_BEGIN
                      withStyle:(NSString *)style;
 @end
 
+@interface RTNMarkdownBlockquoteParagraphStyleWrapper
+    : NSObject <RTNMarkdownAttributeWrapper>
+- (instancetype)initWithStripeWidth:(CGFloat)stripeWidth
+                       withGapWidth:(CGFloat)gapWidth;
+@end
+
+@interface RTNMarkdownBlockquoteStyleWrapper
+    : NSObject <RTNMarkdownAttributeWrapper>
+- (instancetype)initWithStripeColor:(UIColor *)stripeColor
+                    withStripeWidth:(CGFloat)stripeWidth
+                       withGapWidth:(CGFloat)gapWidth;
+@end
+
 NS_ASSUME_NONNULL_END

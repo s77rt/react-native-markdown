@@ -58,3 +58,70 @@
 }
 
 @end
+
+@implementation RTNMarkdownBlockquoteParagraphStyleWrapper {
+  CGFloat _stripeWidth;
+  CGFloat _gapWidth;
+}
+
+- (instancetype)initWithStripeWidth:(CGFloat)stripeWidth
+                       withGapWidth:(CGFloat)gapWidth {
+
+  if (self = [super init]) {
+    _stripeWidth = stripeWidth;
+    _gapWidth = gapWidth;
+  }
+  return self;
+}
+
+- (id)attributeWith:(NSDictionary<NSString *, id> *)defaultTextAttributes
+              data1:(NSUInteger)data1 {
+  NSUInteger indentationLevel = data1;
+
+  NSParagraphStyle *defaultParagraphStyle =
+      defaultTextAttributes[NSParagraphStyleAttributeName];
+  NSMutableParagraphStyle *paragraphStyle =
+      defaultParagraphStyle != nil ? [defaultParagraphStyle mutableCopy]
+                                   : [NSMutableParagraphStyle new];
+  paragraphStyle.firstLineHeadIndent =
+      (_stripeWidth + _gapWidth) * indentationLevel;
+  paragraphStyle.headIndent = (_stripeWidth + _gapWidth) * indentationLevel;
+
+  return paragraphStyle;
+}
+
+@end
+
+@implementation RTNMarkdownBlockquoteStyleWrapper {
+  UIColor *_stripeColor;
+  CGFloat _stripeWidth;
+  CGFloat _gapWidth;
+}
+
+- (instancetype)initWithStripeColor:(UIColor *)stripeColor
+                    withStripeWidth:(CGFloat)stripeWidth
+                       withGapWidth:(CGFloat)gapWidth {
+
+  if (self = [super init]) {
+    _stripeColor = stripeColor;
+    _stripeWidth = stripeWidth;
+    _gapWidth = gapWidth;
+  }
+  return self;
+}
+
+- (id)attributeWith:(NSDictionary<NSString *, id> *)defaultTextAttributes
+              data1:(NSUInteger)data1 {
+  NSUInteger indentationLevel = data1;
+
+  RTNMarkdownBlockquoteStyle *blockquoteStyle =
+      [RTNMarkdownBlockquoteStyle new];
+  blockquoteStyle.indentationLevel = indentationLevel;
+  blockquoteStyle.stripeColor = _stripeColor;
+  blockquoteStyle.stripeWidth = _stripeWidth;
+  blockquoteStyle.gapWidth = _gapWidth;
+
+  return blockquoteStyle;
+}
+
+@end

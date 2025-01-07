@@ -1,11 +1,8 @@
--   [ ] Store last formatted text and skip formatting if text didn't change (and if style and parser didn't change)
 -   [ ] Test with latest RN version
 -   [ ] Remove unused imports
--   [ ] Test code block with background
--   [ ] Add letterSpacing and lineheight (follow up?)
--   [ ] Add (surface?)Color
 -   [ ] Verify that text is reforammted on changing styles (or follow up?) + iOS does not seem to re-render unchanged paragraphs
 -   [ ] Android formatter use entryIterator
 -   [ ] Android remove private members from spans
 -   [ ] Android rename spansList to styleSpans
--   [ ] rename hardClone and hardCopy
+-   [ ] rename hardClone to spanWith
+-   [ ] Use ceil in blockquote renderer
