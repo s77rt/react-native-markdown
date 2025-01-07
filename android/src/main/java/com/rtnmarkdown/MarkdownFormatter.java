@@ -84,7 +84,7 @@ public class MarkdownFormatter {
                 (float)styleValue.getDouble("fontSize")))));
       }
 
-      if (styleKey == "blockquote") {
+      if (styleKey.equals("blockquote")) {
         {
           boolean hasStripeColor = styleValue.hasKey("stripeColor");
           boolean hasStripeWidth = styleValue.hasKey("stripeWidth");
