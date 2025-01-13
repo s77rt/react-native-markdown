@@ -5,8 +5,10 @@
 #import "RTNMarkdownFormatter.h"
 #import "RTNMarkdownTextContentStorageDelegate.h"
 #import "RTNMarkdownTextLayoutManagerDelegate.h"
+#import "RTNMarkdownUITextView.h"
 
 #import <React/RCTBackedTextInputViewProtocol.h>
+#import <React/RCTUITextView.h>
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
 #import <react/renderer/components/RTNMarkdownSpecs/EventEmitters.h>
@@ -80,12 +82,15 @@ using namespace facebook::react;
   _backedTextInputView =
       [childComponentView valueForKey:@"_backedTextInputView"];
 
-  // Only UITextView exposes a text layout manager
-  if ([_backedTextInputView isKindOfClass:[UITextView class]]) {
-    UITextView *textView = (UITextView *)_backedTextInputView;
-    NSTextLayoutManager *textLayoutManager = textView.textLayoutManager;
+  // Only UITextView (RCTUITextView) exposes a text layout manager
+  if ([_backedTextInputView isKindOfClass:[RCTUITextView class]]) {
+    object_setClass((RCTUITextView *)_backedTextInputView,
+                    objc_getClass("RTNMarkdownUITextView"));
+
+    NSTextLayoutManager *textLayoutManager =
+        ((RTNMarkdownUITextView *)_backedTextInputView).textLayoutManager;
     NSTextContentStorage *textContentStorage =
-        (NSTextContentStorage *)textLayoutManager.textContentManager;
+        (NSTextContentStorage *)(textLayoutManager.textContentManager);
 
     _textContentStorageDelegate.backedTextInputView = _backedTextInputView;
 
