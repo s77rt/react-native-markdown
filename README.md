@@ -6,13 +6,13 @@ npm install @s77rt/react-native-markdown
 
 ## `<MarkdownTextInput />`
 
-A drop-in replacement for `<TextInput />` with Markdown support!
+<img align="right" alt="Demo" height="140" src="https://github.com/user-attachments/assets/abd7ebad-715f-4451-ad34-9f2074015d39">
+
+`<MarkdownTextInput />` extends `<TextInput />` and can be used as a drop-in replacement.
+
+`<MarkdownTextInput />` accepts an addtional prop `markdownStyles` allowing you to customize the format of each markdown fragment. Please refer to [Markdown Styles](#markdown-styles) for the list of supported styles.
 
 ### Usage
-
-| Android Demo                                                                                                                                         | iOS Demo                                                                                                                                             |
-| ---------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| <img width="480" alt="Screenshot 2025-01-08 at 12 20 45 AM" src="https://github.com/user-attachments/assets/262c02d0-8de5-4d12-ab2f-0655ac62a6e0" /> | <img width="559" alt="Screenshot 2025-01-08 at 12 20 18 AM" src="https://github.com/user-attachments/assets/8c806055-89e4-45e2-b206-f1cffe8c25f0" /> |
 
 ```tsx
 const markdownStyles = useMemo<MarkdownStyles>(
@@ -43,9 +43,11 @@ const markdownStyles = useMemo<MarkdownStyles>(
 	}),
 	[]
 );
+```
 
+```tsx
 // Render
-<MarkdownTextInput markdownStyles={markdownStyles} multiline />;
+<MarkdownTextInput markdownStyles={markdownStyles} multiline />
 ```
 
 ## Markdown Styles
