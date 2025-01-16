@@ -1,3 +1,4 @@
-import MarkdownTextInput from "./MarkdownTextInput";
+import "./setup";
 
-export { MarkdownTextInput };
+export { default as MarkdownTextInput } from "./MarkdownTextInput";
+export type { MarkdownStyles, MarkdownTextInputProps } from "./types";
