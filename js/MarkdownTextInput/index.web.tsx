@@ -41,7 +41,10 @@ function MarkdownTextInput(
 				}
 
 				const selectionRange = selection.getRangeAt(0);
-				const offset = selectionRange.startOffset;
+				const offset = Math.min(
+					selectionRange.startOffset,
+					newValue.length
+				);
 
 				const newSelectionRange = document.createRange();
 				newSelectionRange.selectNodeContents(innerRef.current);
