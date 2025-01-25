@@ -4,7 +4,7 @@ import React, {
 	useRef,
 	useEffect,
 	useLayoutEffect,
-	useCallback,
+	createElement,
 } from "react";
 import type { ForwardedRef } from "react";
 import { TextInput } from "react-native";
@@ -15,6 +15,50 @@ import { processStyles } from "../utils";
 // s77rt set selection
 // s77rt value="const string" - not worth it yet?
 // s77rt format text
+// s77rt retest controlled input (and cursor jump)
+// s77rt replace useLayoutEffect with useEffect?
+// s77rt undo functionality
+// s77rt inject css styles so we don't build same styles multiple times + account for multiple components with diff styles OR just use a template
+// s77rt verify both single line and multi line
+
+function format(text: string) {
+	if (text.length < 4) {
+		return text;
+	}
+
+	text = "> hi <a>re **bold** abc\n\nok **b** test";
+	const attributes = [
+		{ attribute: "blockquote", location: 0, length: 23 },
+		{ attribute: "b", location: 13, length: 4 },
+		{ attribute: "b", location: 30, length: 1 },
+	];
+
+	const tags: Object[] = [];
+	attributes.forEach((attribute) => {
+		tags.push({
+			tag: "<" + attribute.attribute + ">",
+			position: attribute.location,
+		});
+		tags.push({
+			tag: "</" + attribute.attribute + ">",
+			position: attribute.location + attribute.length,
+		});
+	});
+	tags.sort((a, b) => a.position - b.position);
+
+	let cursor = 0;
+	let newText = "";
+	tags.forEach((tag) => {
+		newText += text.substring(cursor, tag.position); // s77rt encode
+		newText += tag.tag;
+		cursor = tag.position;
+	});
+	newText += text.substring(cursor); // s77rt encode
+
+	console.log(newText);
+
+	return newText;
+}
 
 function MarkdownTextInput(
 	{
@@ -40,6 +84,9 @@ function MarkdownTextInput(
 					return;
 				}
 
+				innerRef.current.innerHTML = format(newValue);
+				return;
+
 				const selectionRange = selection.getRangeAt(0);
 				const offset = Math.min(
 					selectionRange.startOffset,
@@ -50,10 +97,18 @@ function MarkdownTextInput(
 				newSelectionRange.selectNodeContents(innerRef.current);
 				newSelectionRange.deleteContents();
 
-				var textNode = document.createTextNode(newValue);
+				const textNode = document.createTextNode("hi");
+				newSelectionRange.insertNode(textNode);
+				const textNode2 = document.createTextNode("there");
+				newSelectionRange.insertNode(textNode2);
+				const node3 = document.createElement("b");
+				node3.textContent = "kaa";
+				newSelectionRange.insertNode(node3);
+
+				/*const textNode = document.createTextNode(newValue);
 				newSelectionRange.insertNode(textNode);
 				newSelectionRange.setStart(textNode, offset);
-				newSelectionRange.setEnd(textNode, offset);
+				newSelectionRange.setEnd(textNode, offset);*/
 
 				selection.removeRange(selectionRange);
 				selection.addRange(newSelectionRange);
