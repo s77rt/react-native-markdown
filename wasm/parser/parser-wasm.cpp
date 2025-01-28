@@ -95,7 +95,6 @@ typedef struct HTMLTag {
 
 wchar_t *parse_and_format(const wchar_t *input,
                           unsigned inputSize) asm("PARSEANDFORMAT");
-
 wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
   std::vector<AttributeFeature> attributes = parse(input, inputSize);
 
@@ -116,13 +115,12 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
   std::sort(htmlTags.begin(), htmlTags.end());
 
   /**
-   * - (*6) Chars can be encoded into 6 chars each (&<>"'* only) (worst case)
+   * - (*6) Chars can be encoded into 6 chars each (&<>"' only) (worst case)
    * - (32) Tag max length (overestimated)
    * - (+1) Null terminating character
    */
-  unsigned size = (inputSize * 6) + (htmlTags.size() * 32) + 1;
-
-  wchar_t *output = (wchar_t *)malloc(size * sizeof(wchar_t));
+  unsigned outputSize = (inputSize * 6) + (htmlTags.size() * 32) + 1;
+  wchar_t *output = (wchar_t *)malloc(outputSize * sizeof(wchar_t));
   output[0] = '\0';
 
   unsigned cursor = 0;
