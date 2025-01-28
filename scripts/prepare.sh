@@ -2,6 +2,12 @@
 
 git submodule update
 
-rm -rf wasm/parser/
-mkdir -p wasm/parser/
-emcc --no-entry -o wasm/parser/parser.wasm -DMD4C_USE_UTF16 -fshort-wchar -Imd4c/src -O3 cpp/parser/parser.cpp
+emcc --no-entry -o wasm/parser/parser.mjs \
+    -DMD4C_USE_UTF16 -fshort-wchar -Icpp/parser -Imd4c/src \
+    -s STANDALONE_WASM \
+    -s ENVIRONMENT='web' \
+    -s EXPORTED_FUNCTIONS='["_PARSEANDFORMAT", "_malloc", "_free"]' \
+    -s EXPORTED_RUNTIME_METHODS='["stringToUTF16", "UTF16ToString"]' \
+    -s TEXTDECODER=2 \
+    -O3 \
+    wasm/parser/parser-wasm.cpp cpp/parser/parser.cpp md4c/src/md4c.c

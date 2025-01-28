@@ -4,7 +4,6 @@ import React, {
 	useRef,
 	useEffect,
 	useLayoutEffect,
-	createElement,
 } from "react";
 import type { ForwardedRef } from "react";
 import { TextInput } from "react-native";
@@ -21,43 +20,13 @@ import { processStyles } from "../utils";
 // s77rt inject css styles so we don't build same styles multiple times + account for multiple components with diff styles OR just use a template
 // s77rt verify both single line and multi line
 
-function format(text: string) {
-	if (text.length < 4) {
+function format(text: string): string {
+	if (!window["739b9b2c-40c9-4772-9bf5-3ff5930ed2c4"].format) {
+		console.warn("not ready yet, fix this s77rt"); // s77rt
 		return text;
 	}
 
-	text = "> hi <a>re **bold** abc\n\nok **b** test";
-	const attributes = [
-		{ attribute: "blockquote", location: 0, length: 23 },
-		{ attribute: "b", location: 13, length: 4 },
-		{ attribute: "b", location: 30, length: 1 },
-	];
-
-	const tags: Object[] = [];
-	attributes.forEach((attribute) => {
-		tags.push({
-			tag: "<" + attribute.attribute + ">",
-			position: attribute.location,
-		});
-		tags.push({
-			tag: "</" + attribute.attribute + ">",
-			position: attribute.location + attribute.length,
-		});
-	});
-	tags.sort((a, b) => a.position - b.position);
-
-	let cursor = 0;
-	let newText = "";
-	tags.forEach((tag) => {
-		newText += text.substring(cursor, tag.position); // s77rt encode
-		newText += tag.tag;
-		cursor = tag.position;
-	});
-	newText += text.substring(cursor); // s77rt encode
-
-	console.log(newText);
-
-	return newText;
+	return window["739b9b2c-40c9-4772-9bf5-3ff5930ed2c4"].format(text);
 }
 
 function MarkdownTextInput(
@@ -80,7 +49,7 @@ function MarkdownTextInput(
 				const isFocused = document.activeElement === innerRef.current;
 				const selection = window.getSelection();
 				if (!isFocused || !selection || !selection.rangeCount) {
-					innerRef.current.textContent = newValue;
+					innerRef.current.innerHTML = format(newValue);
 					return;
 				}
 
@@ -133,17 +102,14 @@ function MarkdownTextInput(
 
 	// Mimic default value
 	useEffect(() => {
-		if (
-			defaultValue != undefined &&
-			defaultValue != innerRef.current.value
-		) {
+		if (defaultValue != undefined) {
 			innerRef.current.value = defaultValue;
 		}
 	}, []);
 
 	// Mimic controlled value
 	useEffect(() => {
-		if (value != undefined && value != innerRef.current.value) {
+		if (value != undefined) {
 			innerRef.current.value = value;
 		}
 	}, [value]);
