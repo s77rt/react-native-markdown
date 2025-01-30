@@ -303,6 +303,15 @@ function MarkdownTextInput(
 			set: (newValue) => (innerRef.current.textContent = newValue),
 		});
 
+		Object.defineProperty(innerRef.current, "selectionStart", {
+			/** Used to check if a selection is stale (DOM vs prop) */
+			get: () => getSelectionDOM(innerRef.current)?.start || 0,
+		});
+		Object.defineProperty(innerRef.current, "selectionEnd", {
+			/** Used to check if a selection is stale (DOM vs prop) */
+			get: () => getSelectionDOM(innerRef.current)?.end || 0,
+		});
+
 		Object.defineProperty(innerRef.current, "setSelectionRange", {
 			/** Used to sync the `selection` state with the DOM selection */
 			value: (start: number, end: number) =>
