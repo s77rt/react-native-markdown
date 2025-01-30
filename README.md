@@ -74,7 +74,7 @@ Something is missing? [Submit an issue](https://github.com/s77rt/react-native-ma
 
 ## Markdown Flavors
 
-Currently only CommonMark is supported with extended support for:
+CommonMark is used with extended support for:
 
 -   Auto links
 -   Strikethrough
