@@ -116,14 +116,15 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
 
   /**
    * - (*6) Chars can be encoded into 6 chars each (&<>"' only) (worst case)
-   * - (32) Tag max length (overestimated)
+   * - (+2) Wrapping tags - (32) Tag max length (overestimated)
    * - (+1) Null terminating character
    */
-  unsigned outputSize = (inputSize * 6) + (htmlTags.size() * 32) + 1;
+  unsigned outputSize = (inputSize * 6) + ((htmlTags.size() + 2) * 32) + 1;
   wchar_t *output = (wchar_t *)malloc(outputSize * sizeof(wchar_t));
   output[0] = '\0';
 
   unsigned cursor = 0;
+  wcscat_short(output, L"<md-div>");
   for (const HTMLTag &htmlTag : htmlTags) {
     wcsncat_html_encode_short(output, input + cursor,
                               htmlTag.position - cursor);
@@ -136,6 +137,8 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
 
     cursor = htmlTag.position;
   }
+  wcsncat_html_encode_short(output, input + cursor, inputSize - cursor);
+  wcscat_short(output, L"</md-div>");
 
   return output;
 }

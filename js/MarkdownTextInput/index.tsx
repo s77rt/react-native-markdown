@@ -6,14 +6,14 @@ import type { MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
 
 function MarkdownTextInput(
-	{ markdownStyles: _markdownStyles, ...rest }: MarkdownTextInputProps,
+	{ markdownStyles: markdownStylesProp, ...rest }: MarkdownTextInputProps,
 	ref: ForwardedRef<TextInput>
 ) {
 	const markdownStyles = useMemo(() => {
-		const styles = JSON.parse(JSON.stringify(_markdownStyles));
+		const styles = JSON.parse(JSON.stringify(markdownStylesProp));
 		processStyles(styles);
 		return styles;
-	}, [_markdownStyles]);
+	}, [markdownStylesProp]);
 
 	return (
 		<RTNMarkdownNativeComponent markdownStyles={markdownStyles}>
@@ -22,4 +22,4 @@ function MarkdownTextInput(
 	);
 }
 
-export default forwardRef(MarkdownTextInput);
+export default React.memo(forwardRef(MarkdownTextInput));
