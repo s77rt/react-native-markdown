@@ -73,6 +73,14 @@ wchar_t *wcsncat_html_encode_short(wchar_t *s1, const wchar_t *s2, size_t n) {
       r++;
       break;
     }
+    case L'\n': {
+      *q++ = L'<';
+      *q++ = L'b';
+      *q++ = L'r';
+      *q++ = L'>';
+      r++;
+      break;
+    }
     default:
       *q++ = *r++;
       break;

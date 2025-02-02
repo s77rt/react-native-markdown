@@ -12,6 +12,7 @@ import { TextInput } from "react-native";
 import type {
 	NativeSyntheticEvent,
 	TextInputSelectionChangeEventData,
+	TextInputKeyPressEventData,
 } from "react-native";
 import type { MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
@@ -25,7 +26,6 @@ let format = (text: string) => {
 
 parser().then((m) => {
 	format = (text) => {
-		console.log("s77rt format");
 		const textPtr = m._malloc((text.length + 1) * 2);
 		m.stringToUTF16(text, textPtr);
 
@@ -34,6 +34,7 @@ parser().then((m) => {
 
 		const formatedText = m.UTF16ToString(formatedTextPtr);
 		m._free(formatedTextPtr);
+		console.log("s77rt format");
 
 		return formatedText;
 	};
@@ -88,8 +89,12 @@ Object.assign(React, { createElement: modifiedCreateElement });
 // s77rt format should be called once
 // s77rt use state?
 // s77rt add cache
+// s77rt remove console logs
+// s77rt cache selection dom
+// s77rt fix bug: write "text\na" remove the "a", you should be in the second line
+// s77rt test on safari
 
-function getSelectionDOM(node: Node) {
+function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
 	if (!sel) {
 		return;
@@ -100,18 +105,57 @@ function getSelectionDOM(node: Node) {
 	}
 
 	const range = sel.getRangeAt(0);
-	const clonedRange = range.cloneRange();
-	clonedRange.selectNodeContents(node);
-	clonedRange.setEnd(range.startContainer, range.startOffset);
 
-	const start = clonedRange.toString().length;
-	const end = start + range.toString().length;
+	let cursor = 0;
+	let start = 0;
+	let end = 0;
+	let startNode: Node | undefined;
+	let endNode: Node | undefined;
+	let currentNode: Node | undefined;
+	const nodeStack: Node[] = [node];
+
+	while ((currentNode = nodeStack.pop())) {
+		if (currentNode.nodeType === Node.TEXT_NODE) {
+			const textLength = (currentNode as Text).length;
+			cursor += textLength;
+			if (currentNode === range.startContainer) {
+				start = cursor - textLength + range.startOffset;
+			}
+			if (currentNode === range.endContainer) {
+				end = cursor - textLength + range.endOffset;
+				break;
+			}
+		} else {
+			if (currentNode.nodeName === "BR") {
+				cursor++;
+			}
+
+			if (currentNode === range.startContainer) {
+				startNode = currentNode.childNodes[range.startOffset - 1];
+			}
+			if (currentNode === range.endContainer) {
+				endNode = currentNode.childNodes[range.endOffset - 1];
+			}
+			if (currentNode === startNode) {
+				start = cursor + currentNode.innerText.length;
+			}
+			if (currentNode === endNode) {
+				end = cursor + currentNode.innerText.length;
+				break;
+			}
+
+			let i = currentNode.childNodes.length;
+			while (i--) {
+				nodeStack.push(currentNode.childNodes[i]);
+			}
+		}
+	}
 
 	return { start, end };
 }
 
 function setSelectionDOM(
-	node: Node,
+	node: HTMLElement,
 	{ start, end }: { start: number; end: number }
 ) {
 	const sel = window.getSelection();
@@ -119,18 +163,10 @@ function setSelectionDOM(
 		return;
 	}
 
-	if (start === end && end === 0) {
+	if (start === end && (end === 0 || end === node.innerText.length)) {
 		const range = document.createRange();
 		range.selectNodeContents(node);
-		range.setEnd(range.startContainer, range.startOffset);
-		sel.removeAllRanges();
-		sel.addRange(range);
-		return;
-	}
-	if (start === end && end === node.textContent?.length) {
-		const range = document.createRange();
-		range.selectNodeContents(node);
-		range.setStart(range.endContainer, range.endOffset);
+		range.collapse(end === 0);
 		sel.removeAllRanges();
 		sel.addRange(range);
 		return;
@@ -143,6 +179,10 @@ function setSelectionDOM(
 	let cursor = 0;
 	let foundStart = false;
 	let foundEnd = false;
+	let startContainer: Node | undefined;
+	let startOffset = 0;
+	let endContainer: Node | undefined;
+	let endOffset = 0;
 	let currentNode: Node | undefined;
 	const nodeStack: Node[] = [node];
 
@@ -161,7 +201,48 @@ function setSelectionDOM(
 			if (foundEnd) {
 				break;
 			}
+
+			if (currentNode.parentNode === startContainer) {
+				startOffset++;
+			}
+			if (currentNode.parentNode === endContainer) {
+				endOffset++;
+			}
 		} else {
+			if (currentNode.nodeName === "BR") {
+				cursor++;
+			}
+
+			const textLength = currentNode.innerText.length;
+
+			if (cursor + textLength > start) {
+				startContainer = currentNode;
+				startOffset = 0;
+			}
+			if (cursor + textLength > end) {
+				endContainer = currentNode;
+				endOffset = 0;
+			}
+
+			if (currentNode.parentNode === startContainer) {
+				startOffset++;
+			}
+			if (currentNode.parentNode === endContainer) {
+				endOffset++;
+			}
+
+			if (!foundStart && cursor + textLength === start) {
+				range.setStart(startContainer, startOffset);
+				foundStart = true;
+			}
+			if (!foundEnd && cursor + textLength === end) {
+				range.setEnd(endContainer, endOffset);
+				foundEnd = true;
+			}
+			if (foundEnd) {
+				break;
+			}
+
 			let i = currentNode.childNodes.length;
 			while (i--) {
 				nodeStack.push(currentNode.childNodes[i]);
@@ -191,6 +272,7 @@ function MarkdownTextInput(
 		selection: selectionProp,
 		onChangeText: onChangeTextProp,
 		onSelectionChange: onSelectionChangeProp,
+		onKeyPress: onKeyPressProp,
 		...rest
 	}: MarkdownTextInputProps,
 	outerRef: ForwardedRef<TextInput>
@@ -211,6 +293,16 @@ function MarkdownTextInput(
 			"--MarkdownTextInput": true,
 		}),
 		[styleProp]
+	);
+
+	const isForwardDelete = useRef(false); // s77rt should use onbeforeinput instead?
+
+	const onKeyPress = useCallback(
+		(event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
+			isForwardDelete.current = event.nativeEvent.code === "Delete";
+			onKeyPressProp?.(event);
+		},
+		[onKeyPressProp]
 	);
 
 	const [selection, setSelection] = useState(
@@ -236,16 +328,17 @@ function MarkdownTextInput(
 			setValue(text);
 			onChangeTextProp?.(text);
 
-			console.log(
-				"values",
-				text.length - selection.end,
-				value.length - selection.end,
-				selection.start,
-				text.length,
-				value.length
-			);
+			const valueIgnoredOffset = value.at(-1) === "\n" ? 1 : 0;
+			const textIgnoredOffset = text.at(-1) === "\n" ? 1 : 0;
 
-			const position = selection.end + text.length - value.length;
+			const position = isForwardDelete.current
+				? selection.start
+				: selection.end -
+				  (value.length - valueIgnoredOffset) +
+				  (text.length - textIgnoredOffset);
+			if (isForwardDelete.current) {
+				isForwardDelete.current = false;
+			}
 			setSelection({ start: position, end: position });
 		},
 		[onChangeTextProp, selection, value]
@@ -298,9 +391,9 @@ function MarkdownTextInput(
 	useLayoutEffect(() => {
 		Object.defineProperty(innerRef.current, "value", {
 			/** Used to get the `text` value that is sent with events e.g. onFocus */
-			get: () => innerRef.current.textContent,
-			/** Used to clear the input (thus textContent is enough) */
-			set: (newValue) => (innerRef.current.textContent = newValue),
+			get: () => innerRef.current.innerText,
+			/** Used to clear the input (thus innerText is enough) */
+			set: (newValue) => (innerRef.current.innerText = newValue),
 		});
 
 		Object.defineProperty(innerRef.current, "selectionStart", {
@@ -338,6 +431,7 @@ function MarkdownTextInput(
 			value={value}
 			selection={selection}
 			onChangeText={onChangeText}
+			onKeyPress={onKeyPress}
 			{...rest}
 		/>
 	);
