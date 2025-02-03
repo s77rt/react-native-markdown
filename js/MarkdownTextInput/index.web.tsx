@@ -93,6 +93,7 @@ Object.assign(React, { createElement: modifiedCreateElement });
 // s77rt cache selection dom
 // s77rt fix bug: write "text\na" remove the "a", you should be in the second line
 // s77rt test on safari
+// s77rt fix bug: type '\na\nb' and set selection to 0,2 and 1,4
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -128,14 +129,15 @@ function getSelectionDOM(node: HTMLElement) {
 		} else {
 			if (currentNode.nodeName === "BR") {
 				cursor++;
+			} else {
+				if (currentNode === range.startContainer) {
+					startNode = currentNode.childNodes[range.startOffset - 1];
+				}
+				if (currentNode === range.endContainer) {
+					endNode = currentNode.childNodes[range.endOffset - 1];
+				}
 			}
 
-			if (currentNode === range.startContainer) {
-				startNode = currentNode.childNodes[range.startOffset - 1];
-			}
-			if (currentNode === range.endContainer) {
-				endNode = currentNode.childNodes[range.endOffset - 1];
-			}
 			if (currentNode === startNode) {
 				start = cursor + currentNode.innerText.length;
 			}
@@ -177,8 +179,6 @@ function setSelectionDOM(
 	range.collapse(true);
 
 	let cursor = 0;
-	let foundStart = false;
-	let foundEnd = false;
 	let startContainer: Node | undefined;
 	let startOffset = 0;
 	let endContainer: Node | undefined;
@@ -187,66 +187,61 @@ function setSelectionDOM(
 	const nodeStack: Node[] = [node];
 
 	while ((currentNode = nodeStack.pop())) {
+		if (currentNode.parentNode === startContainer) {
+			startOffset++;
+		}
+		if (currentNode.parentNode === endContainer) {
+			endOffset++;
+		}
+
 		if (currentNode.nodeType === Node.TEXT_NODE) {
 			const textLength = (currentNode as Text).length;
+			const startOffset = start - cursor;
+			const endOffset = end - cursor;
 			cursor += textLength;
-			if (!foundStart && cursor >= start) {
-				range.setStart(currentNode, start + textLength - cursor);
-				foundStart = true;
-			}
-			if (!foundEnd && cursor >= end) {
-				range.setEnd(currentNode, end + textLength - cursor);
-				foundEnd = true;
-			}
-			if (foundEnd) {
-				break;
-			}
 
-			if (currentNode.parentNode === startContainer) {
-				startOffset++;
+			if (startOffset > -1 && cursor >= start) {
+				range.setStart(currentNode, startOffset);
 			}
-			if (currentNode.parentNode === endContainer) {
-				endOffset++;
+			if (endOffset > -1 && cursor >= end) {
+				range.setEnd(currentNode, endOffset);
+				break;
 			}
 		} else {
 			if (currentNode.nodeName === "BR") {
 				cursor++;
+			} else {
+				const textLength = (currentNode as HTMLElement).innerText
+					.length;
+
+				if (cursor + textLength >= start) {
+					startContainer = currentNode;
+					startOffset = 0;
+				}
+				if (cursor + textLength >= end) {
+					endContainer = currentNode;
+					endOffset = 0;
+				}
 			}
 
-			const textLength = currentNode.innerText.length;
-
-			if (cursor + textLength > start) {
-				startContainer = currentNode;
-				startOffset = 0;
-			}
-			if (cursor + textLength > end) {
-				endContainer = currentNode;
-				endOffset = 0;
-			}
-
-			if (currentNode.parentNode === startContainer) {
-				startOffset++;
-			}
-			if (currentNode.parentNode === endContainer) {
-				endOffset++;
-			}
-
-			if (!foundStart && cursor + textLength === start) {
+			// Don't break so that we keeping selecting the smallest containers
+			// and also to give the text nodes the chance of being the containers
+			if (cursor === start) {
 				range.setStart(startContainer, startOffset);
-				foundStart = true;
 			}
-			if (!foundEnd && cursor + textLength === end) {
+			if (cursor === end) {
 				range.setEnd(endContainer, endOffset);
-				foundEnd = true;
-			}
-			if (foundEnd) {
-				break;
 			}
 
 			let i = currentNode.childNodes.length;
 			while (i--) {
 				nodeStack.push(currentNode.childNodes[i]);
 			}
+		}
+
+		// It's safe to break now as we are past the end position
+		if (cursor > end) {
+			break;
 		}
 	}
 
@@ -346,6 +341,7 @@ function MarkdownTextInput(
 
 	if (valueProp !== undefined && valueProp != value) {
 		setValue(valueProp);
+		// s77rt fix selection here too
 	}
 
 	useEffect(() => {
