@@ -18,6 +18,12 @@ import type { MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
 import parser from "../../wasm/parser/parser.mjs";
 
+// s77rt
+document.head.insertAdjacentHTML(
+	"beforeend",
+	`<style>md-div{display:inline}</style>`
+);
+
 // WebAssembly parser
 let format = (text: string) => {
 	console.warn("not ready yet, fix this s77rt"); // s77rt
@@ -26,6 +32,10 @@ let format = (text: string) => {
 
 parser().then((m) => {
 	format = (text) => {
+		if (text.length === 0) {
+			return "";
+		}
+
 		const textPtr = m._malloc((text.length + 1) * 2);
 		m.stringToUTF16(text, textPtr);
 
@@ -90,6 +100,8 @@ Object.assign(React, { createElement: modifiedCreateElement });
 // s77rt fix bug: type '\na\nb' and set selection to 0,2 and 1,4
 // s77rt in safari sometimes we can't add line breaks after ctrl+a and delete
 // s77rt selection default value to value.length
+// s77rt usecallback on ref
+// s77rt default value
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -135,10 +147,10 @@ function getSelectionDOM(node: HTMLElement) {
 			}
 
 			if (currentNode === startNode) {
-				start = cursor + currentNode.innerText.length;
+				start = cursor + (currentNode as HTMLElement).innerText.length;
 			}
 			if (currentNode === endNode) {
-				end = cursor + currentNode.innerText.length;
+				end = cursor + (currentNode as HTMLElement).innerText.length;
 				break;
 			}
 
@@ -221,10 +233,10 @@ function setSelectionDOM(
 			// Don't break so that we keeping selecting the smallest containers
 			// and also to give the text nodes the chance of being the containers
 			if (cursor === start) {
-				range.setStart(startContainer, startOffset);
+				range.setStart(startContainer as Node, startOffset);
 			}
 			if (cursor === end) {
-				range.setEnd(endContainer, endOffset);
+				range.setEnd(endContainer as Node, endOffset);
 			}
 
 			let i = currentNode.childNodes.length;
