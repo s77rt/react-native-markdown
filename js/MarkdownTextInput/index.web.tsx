@@ -61,12 +61,6 @@ const modifiedCreateElement = (type, props, ...children) => {
 	modifiedProps.onInput = modifiedProps.onChange;
 	modifiedProps.onChange = undefined;
 
-	// div does not support value prop. Instead dangerouslySetInnerHTML is used.
-	modifiedProps.dangerouslySetInnerHTML = {
-		__html: format(modifiedProps.value),
-	};
-	modifiedProps.value = undefined;
-
 	return originalCreateElement(modifiedType, modifiedProps, ...children);
 };
 Object.assign(React, { createElement: modifiedCreateElement });
@@ -94,6 +88,8 @@ Object.assign(React, { createElement: modifiedCreateElement });
 // s77rt fix bug: write "text\na" remove the "a", you should be in the second line
 // s77rt test on safari
 // s77rt fix bug: type '\na\nb' and set selection to 0,2 and 1,4
+// s77rt in safari sometimes we can't add line breaks after ctrl+a and delete
+// s77rt selection default value to value.length
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -175,8 +171,6 @@ function setSelectionDOM(
 	}
 
 	const range = document.createRange();
-	range.setStart(node, 0);
-	range.collapse(true);
 
 	let cursor = 0;
 	let startContainer: Node | undefined;
@@ -300,50 +294,93 @@ function MarkdownTextInput(
 		[onKeyPressProp]
 	);
 
-	const [selection, setSelection] = useState(
-		selectionProp ?? { start: 0, end: 0 }
+	/** Value data */
+	const [value, setValueInternal] = useState(
+		defaultValueProp ?? valueProp ?? ""
 	);
+	const valueStore = useRef(value);
+	const isValueStale = useRef(false);
+
+	/** Selection data */
+	const [selection, setSelectionInternal] = useState(
+		selectionProp ?? { start: value.length, end: value.length }
+	);
+	const selectionStore = useRef(selection);
+
+	/** Selection setter */
+	const setSelection = useCallback(
+		(newSelection: { start: number; end: number }) => {
+			setSelectionInternal(newSelection);
+			selectionStore.current = newSelection;
+		},
+		[]
+	);
+
+	/** Sync cursor position */
+	const syncCursorPosition = useCallback(
+		(oldText: string, newText: string) => {
+			const oldTextIgnoredOffset = oldText.at(-1) === "\n" ? 1 : 0;
+			const newTextIgnoredOffset = newText.at(-1) === "\n" ? 1 : 0;
+
+			const position = isForwardDelete.current
+				? selectionStore.current.start
+				: selectionStore.current.end -
+				  (oldText.length - oldTextIgnoredOffset) +
+				  (newText.length - newTextIgnoredOffset);
+
+			if (isForwardDelete.current) {
+				isForwardDelete.current = false;
+			}
+
+			setSelection({ start: position, end: position });
+		},
+		[setSelection]
+	);
+
+	/** Value setter */
+	const setValue = useCallback(
+		(newValue: string) => {
+			setValueInternal(newValue);
+			syncCursorPosition(valueStore.current, newValue);
+			valueStore.current = newValue;
+			isValueStale.current = true;
+		},
+		[syncCursorPosition]
+	);
+
+	/** Events */
 	const onSelectionChange = useCallback(
 		(event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
 			console.log("selection");
 			setSelection(event.nativeEvent.selection);
 			onSelectionChangeProp?.(event);
 		},
-		[onSelectionChangeProp]
+		[setSelection, onSelectionChangeProp]
 	);
-
-	if (selectionProp !== undefined && selectionProp != selection) {
-		setSelection(selectionProp);
-	}
-
-	const [value, setValue] = useState(defaultValueProp ?? valueProp ?? "");
 	const onChangeText = useCallback(
 		(text: string) => {
 			console.log("change");
 			setValue(text);
 			onChangeTextProp?.(text);
-
-			const valueIgnoredOffset = value.at(-1) === "\n" ? 1 : 0;
-			const textIgnoredOffset = text.at(-1) === "\n" ? 1 : 0;
-
-			const position = isForwardDelete.current
-				? selection.start
-				: selection.end -
-				  (value.length - valueIgnoredOffset) +
-				  (text.length - textIgnoredOffset);
-			if (isForwardDelete.current) {
-				isForwardDelete.current = false;
-			}
-			setSelection({ start: position, end: position });
 		},
-		[onChangeTextProp, selection, value]
+		[setValue, onChangeTextProp]
 	);
 
+	/** Sync props to state */
+	if (selectionProp !== undefined && selectionProp != selection) {
+		setSelection(selectionProp);
+	}
 	if (valueProp !== undefined && valueProp != value) {
 		setValue(valueProp);
-		// s77rt fix selection here too
 	}
 
+	/** Sync state to DOM */
+	if (innerRef.current && isValueStale.current) {
+		innerRef.current.innerHTML = format(value);
+		isValueStale.current = false;
+	}
+
+	/** Effects */
 	useEffect(() => {
 		// s77rt debounce
 		const handleSelectionChange = (
@@ -361,7 +398,8 @@ function MarkdownTextInput(
 			};
 
 			const isSelectionStale =
-				start != selection.start || end != selection.end;
+				start != selectionStore.current.start ||
+				end != selectionStore.current.end;
 			if (!isSelectionStale) {
 				return;
 			}
@@ -380,7 +418,7 @@ function MarkdownTextInput(
 				"selectionchange",
 				handleSelectionChange
 			);
-	}, [onSelectionChange, selection]);
+	}, [onSelectionChange]);
 
 	// Add missing properties that are used in RNW TextInput implementation
 	// https://github.com/necolas/react-native-web/blob/fcbe2d1e9225282671e39f9f639e2cb04c7e1e65/packages/react-native-web/src/exports/TextInput/index.js
@@ -424,7 +462,6 @@ function MarkdownTextInput(
 				}
 			}}
 			style={style}
-			value={value}
 			selection={selection}
 			onChangeText={onChangeText}
 			onKeyPress={onKeyPress}
