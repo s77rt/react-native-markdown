@@ -449,7 +449,13 @@ function MarkdownTextInput(
 			 * If the selection is 0 return undefined instead to force setting the selection because on Safari after Ctrl+A and Delete,
 			 * the selection becomes broken and can't enter new lines.
 			 */
-			get: () => getSelectionDOM(innerRef.current)?.start || undefined,
+			get: () => {
+				const selectionDOM = getSelectionDOM(innerRef.current);
+				if (selectionDOM?.start === 0 && selectionDOM?.end === 0) {
+					return undefined;
+				}
+				return selectionDOM?.start;
+			},
 		});
 		Object.defineProperty(innerRef.current, "selectionEnd", {
 			/** Used to check if the selection is stale (DOM vs state).
@@ -457,7 +463,13 @@ function MarkdownTextInput(
 			 * If the selection is 0 return undefined instead to force setting the selection because on Safari after Ctrl+A and Delete,
 			 * the selection becomes broken and can't enter new lines.
 			 */
-			get: () => getSelectionDOM(innerRef.current)?.end || undefined,
+			get: () => {
+				const selectionDOM = getSelectionDOM(innerRef.current);
+				if (selectionDOM?.start === 0 && selectionDOM?.end === 0) {
+					return undefined;
+				}
+				return selectionDOM?.end;
+			},
 		});
 
 		Object.defineProperty(innerRef.current, "setSelectionRange", {
