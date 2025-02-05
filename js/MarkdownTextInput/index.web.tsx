@@ -278,8 +278,6 @@ function MarkdownTextInput(
 	}: MarkdownTextInputProps,
 	outerRef: ForwardedRef<TextInput>
 ) {
-	const innerRef = useRef<TextInput>();
-
 	const markdownStyles = useMemo(() => {
 		const styles = JSON.parse(JSON.stringify(markdownStylesProp));
 		processStyles(styles);
@@ -295,6 +293,17 @@ function MarkdownTextInput(
 		}),
 		[styleProp]
 	);
+
+	const innerRef = useRef<TextInput>();
+
+	const ref = useCallback((el: HTMLElement) => {
+		innerRef.current = el;
+		if (typeof outerRef === "function") {
+			outerRef(el);
+		} else if (outerRef) {
+			outerRef.current = el;
+		}
+	}, []);
 
 	const isDeleteContentForward = useRef(false);
 
@@ -486,14 +495,7 @@ function MarkdownTextInput(
 
 	return (
 		<TextInput
-			ref={(el) => {
-				innerRef.current = el;
-				if (typeof outerRef === "function") {
-					outerRef(el);
-				} else if (outerRef) {
-					outerRef.current = el;
-				}
-			}}
+			ref={ref}
 			style={style}
 			selection={selection}
 			onChangeText={onChangeText}
