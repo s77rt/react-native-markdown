@@ -90,6 +90,7 @@ Object.assign(React, { createElement: modifiedCreateElement });
 // s77rt if current index is last, new cursor should be srt last directly without loop
 // s77rt on paste we should be at the end of the pasted text
 // s77rt paste same text twice on same place and verify that we format it
+// s77rt paste add extra \n if last char is \n
 // s77rt format should be called once
 // s77rt use state?
 // s77rt add cache
@@ -273,7 +274,6 @@ function MarkdownTextInput(
 		selection: selectionProp,
 		onChangeText: onChangeTextProp,
 		onSelectionChange: onSelectionChangeProp,
-		onKeyPress: onKeyPressProp,
 		...rest
 	}: MarkdownTextInputProps,
 	outerRef: ForwardedRef<TextInput>
@@ -296,15 +296,7 @@ function MarkdownTextInput(
 		[styleProp]
 	);
 
-	const isForwardDelete = useRef(false); // s77rt should use onbeforeinput instead?
-
-	const onKeyPress = useCallback(
-		(event: NativeSyntheticEvent<TextInputKeyPressEventData>) => {
-			isForwardDelete.current = event.nativeEvent.code === "Delete";
-			onKeyPressProp?.(event);
-		},
-		[onKeyPressProp]
-	);
+	const isDeleteContentForward = useRef(false);
 
 	/** Value data */
 	const [value, setValueInternal] = useState(
@@ -334,15 +326,11 @@ function MarkdownTextInput(
 			const oldTextIgnoredOffset = oldText.at(-1) === "\n" ? 1 : 0;
 			const newTextIgnoredOffset = newText.at(-1) === "\n" ? 1 : 0;
 
-			const position = isForwardDelete.current
+			const position = isDeleteContentForward.current
 				? selectionStore.current.start
 				: selectionStore.current.end -
 				  (oldText.length - oldTextIgnoredOffset) +
 				  (newText.length - newTextIgnoredOffset);
-
-			if (isForwardDelete.current) {
-				isForwardDelete.current = false;
-			}
 
 			setSelection({ start: position, end: position });
 		},
@@ -403,22 +391,21 @@ function MarkdownTextInput(
 				return;
 			}
 
-			// getSelectionDOM is guaranteed to return a selection because the node is focused
-			const { start, end } = getSelectionDOM(innerRef.current) as {
-				start: number;
-				end: number;
-			};
+			const selectionDOM = getSelectionDOM(innerRef.current);
+			if (!selectionDOM) {
+				return;
+			}
 
 			const isSelectionStale =
-				start != selectionStore.current.start ||
-				end != selectionStore.current.end;
+				selectionDOM.start != selectionStore.current.start ||
+				selectionDOM.end != selectionStore.current.end;
 			if (!isSelectionStale) {
 				return;
 			}
 
 			event.nativeEvent = {
 				target: innerRef.current,
-				selection: { start, end },
+				selection: selectionDOM,
 			};
 
 			onSelectionChange(event);
@@ -431,6 +418,20 @@ function MarkdownTextInput(
 				handleSelectionChange
 			);
 	}, [onSelectionChange]);
+
+	useEffect(() => {
+		const handleBeforeInput = (event: NativeSyntheticEvent<any>) => {
+			isDeleteContentForward.current =
+				event.inputType === "deleteContentForward";
+		};
+
+		innerRef.current.addEventListener("beforeinput", handleBeforeInput);
+		return () =>
+			innerRef.current.removeEventListener(
+				"beforeinput",
+				handleBeforeInput
+			);
+	}, []);
 
 	// Add missing properties that are used in RNW TextInput implementation
 	// https://github.com/necolas/react-native-web/blob/fcbe2d1e9225282671e39f9f639e2cb04c7e1e65/packages/react-native-web/src/exports/TextInput/index.js
@@ -484,7 +485,6 @@ function MarkdownTextInput(
 			style={style}
 			selection={selection}
 			onChangeText={onChangeText}
-			onKeyPress={onKeyPress}
 			{...rest}
 		/>
 	);
