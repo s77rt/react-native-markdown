@@ -491,6 +491,10 @@ function MarkdownTextInput(
 			);
 	}, []);
 
+	useEffect(() => {
+		innerRef.current.innerHTML = format(value);
+	}, []);
+
 	return (
 		<TextInput
 			ref={ref}
