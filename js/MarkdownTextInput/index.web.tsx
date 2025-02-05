@@ -389,59 +389,6 @@ function MarkdownTextInput(
 		isValueStale.current = false;
 	}
 
-	/** Effects */
-	useEffect(() => {
-		// s77rt debounce
-		const handleSelectionChange = (
-			event: NativeSyntheticEvent<TextInputSelectionChangeEventData>
-		) => {
-			const isFocused = document.activeElement === innerRef.current;
-			if (!isFocused) {
-				return;
-			}
-
-			const selectionDOM = getSelectionDOM(innerRef.current);
-			if (!selectionDOM) {
-				return;
-			}
-
-			const isSelectionStale =
-				selectionDOM.start != selectionStore.current.start ||
-				selectionDOM.end != selectionStore.current.end;
-			if (!isSelectionStale) {
-				return;
-			}
-
-			event.nativeEvent = {
-				target: innerRef.current,
-				selection: selectionDOM,
-			};
-
-			onSelectionChange(event);
-		};
-
-		document.addEventListener("selectionchange", handleSelectionChange);
-		return () =>
-			document.removeEventListener(
-				"selectionchange",
-				handleSelectionChange
-			);
-	}, [onSelectionChange]);
-
-	useEffect(() => {
-		const handleBeforeInput = (event: NativeSyntheticEvent<any>) => {
-			isDeleteContentForward.current =
-				event.inputType === "deleteContentForward";
-		};
-
-		innerRef.current.addEventListener("beforeinput", handleBeforeInput);
-		return () =>
-			innerRef.current.removeEventListener(
-				"beforeinput",
-				handleBeforeInput
-			);
-	}, []);
-
 	// Add missing properties that are used in RNW TextInput implementation
 	// https://github.com/necolas/react-native-web/blob/fcbe2d1e9225282671e39f9f639e2cb04c7e1e65/packages/react-native-web/src/exports/TextInput/index.js
 	useLayoutEffect(() => {
@@ -491,6 +438,57 @@ function MarkdownTextInput(
 			/** Used to select text on focus i.e. selectTextOnFocus prop */
 			value: () => selectAllDOM(innerRef.current),
 		});
+	}, []);
+
+	useEffect(() => {
+		const handleSelectionChange = (
+			event: NativeSyntheticEvent<TextInputSelectionChangeEventData>
+		) => {
+			const isFocused = document.activeElement === innerRef.current;
+			if (!isFocused) {
+				return;
+			}
+
+			const selectionDOM = getSelectionDOM(innerRef.current);
+			if (!selectionDOM) {
+				return;
+			}
+
+			const isSelectionStale =
+				selectionDOM.start != selectionStore.current.start ||
+				selectionDOM.end != selectionStore.current.end;
+			if (!isSelectionStale) {
+				return;
+			}
+
+			event.nativeEvent = {
+				target: innerRef.current,
+				selection: selectionDOM,
+			};
+
+			onSelectionChange(event);
+		};
+
+		document.addEventListener("selectionchange", handleSelectionChange);
+		return () =>
+			document.removeEventListener(
+				"selectionchange",
+				handleSelectionChange
+			);
+	}, [onSelectionChange]);
+
+	useEffect(() => {
+		const handleBeforeInput = (event: NativeSyntheticEvent<any>) => {
+			isDeleteContentForward.current =
+				event.inputType === "deleteContentForward";
+		};
+
+		innerRef.current.addEventListener("beforeinput", handleBeforeInput);
+		return () =>
+			innerRef.current.removeEventListener(
+				"beforeinput",
+				handleBeforeInput
+			);
 	}, []);
 
 	return (
