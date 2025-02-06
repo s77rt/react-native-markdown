@@ -12,7 +12,6 @@ import { TextInput } from "react-native";
 import type {
 	NativeSyntheticEvent,
 	TextInputSelectionChangeEventData,
-	TextInputKeyPressEventData,
 } from "react-native";
 import type { MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
