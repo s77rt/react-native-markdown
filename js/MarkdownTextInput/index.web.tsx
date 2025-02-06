@@ -274,6 +274,7 @@ function MarkdownTextInput(
 		selection: selectionProp,
 		onChangeText: onChangeTextProp,
 		onSelectionChange: onSelectionChangeProp,
+		multiline,
 		...rest
 	}: MarkdownTextInputProps,
 	outerRef: ForwardedRef<TextInput>
@@ -369,10 +370,11 @@ function MarkdownTextInput(
 	const onChangeText = useCallback(
 		(text: string) => {
 			console.log("change");
-			setValue(text);
-			onChangeTextProp?.(text);
+			const newValue = multiline ? text : text.replaceAll("\n", "");
+			setValue(newValue);
+			onChangeTextProp?.(newValue);
 		},
-		[setValue, onChangeTextProp]
+		[setValue, onChangeTextProp, multiline]
 	);
 
 	/** Sync props to state */
@@ -501,6 +503,7 @@ function MarkdownTextInput(
 			style={style}
 			selection={selection}
 			onChangeText={onChangeText}
+			multiline={multiline}
 			{...rest}
 		/>
 	);
