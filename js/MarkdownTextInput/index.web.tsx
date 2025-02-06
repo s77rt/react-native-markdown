@@ -102,6 +102,7 @@ Object.assign(React, { createElement: modifiedCreateElement });
 // s77rt selection default value to value.length
 // s77rt usecallback on ref
 // s77rt default value
+// s77rt test format text that contains arabic and emojis (utf16 test)
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -331,15 +332,17 @@ function MarkdownTextInput(
 
 	/** Sync cursor position */
 	const syncCursorPosition = useCallback(
-		(oldText: string, newText: string) => {
-			const oldTextIgnoredOffset = oldText.at(-1) === "\n" ? 1 : 0;
-			const newTextIgnoredOffset = newText.at(-1) === "\n" ? 1 : 0;
+		(newValue: string) => {
+			const oldValue = valueStore.current;
+
+			const oldValuegnoredOffset = oldValue.at(-1) === "\n" ? 1 : 0;
+			const newValueIgnoredOffset = newValue.at(-1) === "\n" ? 1 : 0;
 
 			const position = isDeleteContentForward.current
 				? selectionStore.current.start
 				: selectionStore.current.end -
-				  (oldText.length - oldTextIgnoredOffset) +
-				  (newText.length - newTextIgnoredOffset);
+				  (oldValue.length - oldValuegnoredOffset) +
+				  (newValue.length - newValueIgnoredOffset);
 
 			setSelection({ start: position, end: position });
 		},
@@ -350,7 +353,7 @@ function MarkdownTextInput(
 	const setValue = useCallback(
 		(newValue: string) => {
 			setValueInternal(newValue);
-			syncCursorPosition(valueStore.current, newValue);
+			syncCursorPosition(newValue);
 			valueStore.current = newValue;
 			isValueStale.current = true;
 		},
