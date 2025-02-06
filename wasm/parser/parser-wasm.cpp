@@ -123,7 +123,7 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
   std::sort(htmlTags.begin(), htmlTags.end());
 
   /**
-   * - (*6) Chars can be encoded into 6 chars each (&<>"' only) (worst case)
+   * - (*6) Chars can be encoded into 6 chars each (&<>"'\n) (worst case)
    * - (+2) Wrapping tags - (32) Tag max length (overestimated)
    * - (+1) Null terminating character
    */
