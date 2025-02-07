@@ -92,9 +92,8 @@ wchar_t *wcsncat_html_encode_short(wchar_t *s1, const wchar_t *s2, size_t n) {
 }
 
 typedef struct HTMLTag {
-  Attribute attribute;
-  bool open;
   unsigned position;
+  const wchar_t *tag;
 
   bool operator<(const HTMLTag &htmlTag) const {
     return (position < htmlTag.position);
@@ -115,10 +114,90 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
       continue;
     }
 
+    const wchar_t *openTag;
+    const wchar_t *closeTag;
+    switch (attribute.attribute) {
+    case Attribute_Heading: {
+      switch (attribute.data1) {
+      case 1:
+        openTag = L"<md-h1>";
+        closeTag = L"</md-h1>";
+        break;
+      case 2:
+        openTag = L"<md-h2>";
+        closeTag = L"</md-h2>";
+        break;
+      case 3:
+        openTag = L"<md-h3>";
+        closeTag = L"</md-h3>";
+        break;
+      case 4:
+        openTag = L"<md-h4>";
+        closeTag = L"</md-h4>";
+        break;
+      case 5:
+        openTag = L"<md-h5>";
+        closeTag = L"</md-h5>";
+        break;
+      case 6:
+        openTag = L"<md-h6>";
+        closeTag = L"</md-h6>";
+        break;
+      default:
+        openTag = L"";
+        closeTag = L"";
+        break;
+      };
+      break;
+    }
+    case Attribute_Blockquote:
+      openTag = L"<md-blockquote>";
+      closeTag = L"</md-blockquote>";
+      break;
+    case Attribute_Codeblock:
+      openTag = L"<md-pre>";
+      closeTag = L"</md-pre>";
+      break;
+    case Attribute_HorizontalRule:
+      openTag = L"<md-hr>";
+      closeTag = L"</md-hr>";
+      break;
+    case Attribute_Bold:
+      openTag = L"<md-b>";
+      closeTag = L"</md-b>";
+      break;
+    case Attribute_Italic:
+      openTag = L"<md-i>";
+      closeTag = L"</md-i>";
+      break;
+    case Attribute_Link:
+      openTag = L"<md-a>";
+      closeTag = L"</md-a>";
+      break;
+    case Attribute_Image:
+      openTag = L"<md-img>";
+      closeTag = L"</md-img>";
+      break;
+    case Attribute_Code:
+      openTag = L"<md-code>";
+      closeTag = L"</md-code>";
+      break;
+    case Attribute_Strikethrough:
+      openTag = L"<md-s>";
+      closeTag = L"</md-s>";
+      break;
+    case Attribute_Underline:
+      openTag = L"<md-u>";
+      closeTag = L"</md-u>";
+      break;
+    default:
+      openTag = L"";
+      closeTag = L"";
+    };
+
+    htmlTags.push_back((HTMLTag){attribute.location, openTag});
     htmlTags.push_back(
-        (HTMLTag){attribute.attribute, true, attribute.location});
-    htmlTags.push_back((HTMLTag){attribute.attribute, false,
-                                 attribute.location + attribute.length});
+        (HTMLTag){attribute.location + attribute.length, closeTag});
   }
   std::sort(htmlTags.begin(), htmlTags.end());
 
@@ -133,18 +212,14 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
 
   unsigned cursor = 0;
   wcscat_short(output, L"<md-div>");
+
   for (const HTMLTag &htmlTag : htmlTags) {
     wcsncat_html_encode_short(output, input + cursor,
                               htmlTag.position - cursor);
-
-    if (htmlTag.open) {
-      wcscat_short(output, L"<md-div>");
-    } else {
-      wcscat_short(output, L"</md-div>");
-    }
-
+    wcscat_short(output, htmlTag.tag);
     cursor = htmlTag.position;
   }
+
   wcsncat_html_encode_short(output, input + cursor, inputSize - cursor);
   wcscat_short(output, L"</md-div>");
 
