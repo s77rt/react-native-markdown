@@ -23,26 +23,6 @@ document.head.insertAdjacentHTML(
 	`<style>md-div{display:inline}</style>`
 );
 
-// WebAssembly parser
-const parserModule = parser();
-function format(text: string): string {
-	if (text.length === 0) {
-		return "";
-	}
-
-	const textPtr = parserModule._malloc((text.length + 1) * 2);
-	parserModule.stringToUTF16(text, textPtr);
-
-	const formatedTextPtr = parserModule._PARSEANDFORMAT(textPtr, text.length);
-	parserModule._free(textPtr);
-
-	const formatedText = parserModule.UTF16ToString(formatedTextPtr);
-	parserModule._free(formatedTextPtr);
-	console.log("s77rt format");
-
-	return formatedText;
-}
-
 // React.createElement monkey patch
 const originalCreateElement = React.createElement;
 const modifiedCreateElement = (type, props, ...children) => {
@@ -67,6 +47,26 @@ const modifiedCreateElement = (type, props, ...children) => {
 	return originalCreateElement(modifiedType, modifiedProps, ...children);
 };
 Object.assign(React, { createElement: modifiedCreateElement });
+
+// WebAssembly parser
+const parserModule = parser();
+function format(text: string): string {
+	if (text.length === 0) {
+		return "";
+	}
+
+	const textPtr = parserModule._malloc((text.length + 1) * 2);
+	parserModule.stringToUTF16(text, textPtr);
+
+	const formatedTextPtr = parserModule._PARSEANDFORMAT(textPtr, text.length);
+	parserModule._free(textPtr);
+
+	const formatedText = parserModule.UTF16ToString(formatedTextPtr);
+	parserModule._free(formatedTextPtr);
+	console.log("s77rt format");
+
+	return formatedText;
+}
 
 // s77rt onChangeSelection
 // s77rt set selection
