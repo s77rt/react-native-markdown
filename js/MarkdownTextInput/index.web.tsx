@@ -24,30 +24,24 @@ document.head.insertAdjacentHTML(
 );
 
 // WebAssembly parser
-let format = (text: string) => {
-	console.warn("not ready yet, fix this s77rt"); // s77rt
-	return "fix me";
-};
+const parserModule = parser();
+function format(text: string): string {
+	if (text.length === 0) {
+		return "";
+	}
 
-parser().then((m) => {
-	format = (text) => {
-		if (text.length === 0) {
-			return "";
-		}
+	const textPtr = parserModule._malloc((text.length + 1) * 2);
+	parserModule.stringToUTF16(text, textPtr);
 
-		const textPtr = m._malloc((text.length + 1) * 2);
-		m.stringToUTF16(text, textPtr);
+	const formatedTextPtr = parserModule._PARSEANDFORMAT(textPtr, text.length);
+	parserModule._free(textPtr);
 
-		const formatedTextPtr = m._PARSEANDFORMAT(textPtr, text.length);
-		m._free(textPtr);
+	const formatedText = parserModule.UTF16ToString(formatedTextPtr);
+	parserModule._free(formatedTextPtr);
+	console.log("s77rt format");
 
-		const formatedText = m.UTF16ToString(formatedTextPtr);
-		m._free(formatedTextPtr);
-		console.log("s77rt format");
-
-		return formatedText;
-	};
-});
+	return formatedText;
+}
 
 // React.createElement monkey patch
 const originalCreateElement = React.createElement;
