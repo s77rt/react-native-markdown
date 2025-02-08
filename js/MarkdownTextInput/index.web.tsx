@@ -153,6 +153,7 @@ function buildMarkdownStylesCSS(markdownStyles: MarkdownStyles): string {
 // s77rt test format text that contains arabic and emojis (utf16 test)
 // s77rt fix bug: type: ``` then press enter, cursor should be on the next line
 // s77rt spellcheck flickers
+// s7rrt add a differ to only update the part that changed?
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
