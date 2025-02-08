@@ -6,6 +6,7 @@ import React, {
 	useState,
 	useLayoutEffect,
 	useCallback,
+	useInsertionEffect,
 } from "react";
 import type { ForwardedRef } from "react";
 import { TextInput } from "react-native";
@@ -13,15 +14,9 @@ import type {
 	NativeSyntheticEvent,
 	TextInputSelectionChangeEventData,
 } from "react-native";
-import type { MarkdownTextInputProps } from "../types";
+import type { MarkdownStyles, MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
 import parser from "../../wasm/parser/parser.mjs";
-
-// s77rt
-document.head.insertAdjacentHTML(
-	"beforeend",
-	`<style>md-div{display:inline}</style>`
-);
 
 // React.createElement monkey patch
 const originalCreateElement = React.createElement;
@@ -68,6 +63,65 @@ function format(text: string): string {
 	return formatedText;
 }
 
+// CSS builder
+const markdownStyleKeyHTMLTag: Record<keyof MarkdownStyles, string> = {
+	h1: "md-h1",
+	h2: "md-h2",
+	h3: "md-h3",
+	h4: "md-h4",
+	h5: "md-h5",
+	h6: "md-h6",
+	blockquote: "md-blockquote",
+	codeblock: "md-pre",
+	horizontalRule: "md-hr",
+
+	bold: "md-b",
+	italic: "md-i",
+	link: "md-a",
+	image: "md-img",
+	code: "md-code",
+	strikethrough: "md-s",
+	underline: "md-u",
+};
+function buildMarkdownStylesCSS(markdownStyles: MarkdownStyles): string {
+	let css = "";
+
+	const selector = "md-div"; //s77rt
+	css += selector + "{display:inline;}";
+
+	for (const [styleKey, styleValue] of Object.entries(markdownStyles)) {
+		const selector = markdownStyleKeyHTMLTag[styleKey];
+		css += selector + "{";
+
+		css += "display:inline;";
+
+		if (styleValue["backgroundColor"] !== undefined) {
+			css += "background-color:" + styleValue["backgroundColor"] + ";";
+		}
+		if (styleValue["color"] !== undefined) {
+			css += "color:" + styleValue["color"] + ";";
+		}
+		if (styleValue["fontFamily"] !== undefined) {
+			css += "font-family:" + styleValue["fontFamily"] + ";";
+		}
+		if (styleValue["fontSize"] !== undefined) {
+			css += "font-size:" + styleValue["fontSize"] + "px;";
+		}
+		if (styleValue["fontStyle"] !== undefined) {
+			css += "font-style:" + styleValue["fontStyle"] + ";";
+		}
+		if (styleValue["fontWeight"] !== undefined) {
+			css += "font-weight:" + styleValue["fontWeight"] + ";";
+		}
+
+		// s77rt add blockquote
+
+		css += "}";
+	}
+
+	return css;
+}
+
 // s77rt onChangeSelection
 // s77rt set selection
 // s77rt value="const string" - not worth it yet?
@@ -97,6 +151,8 @@ function format(text: string): string {
 // s77rt usecallback on ref
 // s77rt default value
 // s77rt test format text that contains arabic and emojis (utf16 test)
+// s77rt fix bug: type: ``` then press enter, cursor should be on the next line
+// s77rt spellcheck flickers
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -278,6 +334,7 @@ function MarkdownTextInput(
 		processStyles(styles);
 		return styles;
 	}, [markdownStylesProp]);
+	console.log(buildMarkdownStylesCSS(markdownStyles));
 
 	const style = useMemo(
 		() => ({
@@ -386,6 +443,16 @@ function MarkdownTextInput(
 		innerRef.current.innerHTML = format(value);
 		isValueStale.current = false;
 	}
+
+	/** CSS Injection */
+	useInsertionEffect(() => {
+		console.log("running useInsertionEffect");
+		const styleElement = document.createElement("style");
+		styleElement.textContent = buildMarkdownStylesCSS(markdownStyles);
+		document.head.append(styleElement);
+
+		// s77rt cleanup
+	}, [markdownStyles]);
 
 	// Add missing properties that are used in RNW TextInput implementation
 	// https://github.com/necolas/react-native-web/blob/fcbe2d1e9225282671e39f9f639e2cb04c7e1e65/packages/react-native-web/src/exports/TextInput/index.js
