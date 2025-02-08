@@ -444,7 +444,7 @@ function MarkdownTextInput(
 		isValueStale.current = false;
 	}
 
-	/** CSS Injection */
+	/** CSS injection */
 	useInsertionEffect(() => {
 		console.log("running useInsertionEffect");
 		const styleElement = document.createElement("style");

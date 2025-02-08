@@ -3,7 +3,7 @@ import { Platform, processColor as processColorRN } from "react-native";
 const processColor = (color: any) => {
 	const processedColor = processColorRN(color);
 
-	if (Platform.OS === "web") {
+	if (Platform.OS === "web" && typeof processedColor === "number") {
 		// Convert aarrggbb to rrggbbaa
 		const hexColor =
 			((processedColor << 8) | (processedColor >>> 24)) >>> 0;
