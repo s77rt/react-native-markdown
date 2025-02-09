@@ -162,6 +162,7 @@ function buildMarkdownStylesCSS(markdownStyles: MarkdownStyles): string {
 // s77rt fix bug: type: ``` then press enter, cursor should be on the next line
 // s77rt spellcheck flickers
 // s7rrt add a differ to only update the part that changed?
+// s77rt fix bug: type: ` then press enter, cursor should be on the next line
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -414,6 +415,8 @@ function MarkdownTextInput(
 				  (oldValue.length - oldValuegnoredOffset) +
 				  (newValue.length - newValueIgnoredOffset);
 
+			console.log("new pos", position);
+
 			setSelection({ start: position, end: position });
 		},
 		[setSelection]
@@ -484,8 +487,8 @@ function MarkdownTextInput(
 		Object.defineProperty(innerRef.current, "value", {
 			/** Used to get the `text` value that is sent with events e.g. onFocus */
 			get: () => innerRef.current.innerText,
-			/** Used to clear the input (thus innerText is enough) */
-			set: (newValue) => (innerRef.current.innerText = newValue),
+			/** Used to set/clear the input */
+			set: (newValue) => (innerRef.current.innerHTML = format(newValue)),
 		});
 
 		Object.defineProperty(innerRef.current, "selectionStart", {
@@ -539,6 +542,7 @@ function MarkdownTextInput(
 			}
 
 			const selectionDOM = getSelectionDOM(innerRef.current);
+			console.log("getSelectionDOM result", selectionDOM?.start);
 			if (!selectionDOM) {
 				return;
 			}
