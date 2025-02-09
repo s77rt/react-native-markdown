@@ -48,7 +48,7 @@ Object.assign(React, { createElement: modifiedCreateElement });
 const parserModule = parser();
 function format(text: string): string {
 	if (text.length === 0) {
-		return "";
+		return "<md-div></md-div>";
 	}
 
 	const textPtr = parserModule._malloc((text.length + 1) * 2);
