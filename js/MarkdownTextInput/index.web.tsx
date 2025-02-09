@@ -191,10 +191,20 @@ function getSelectionDOM(node: HTMLElement) {
 				cursor++;
 			} else {
 				if (currentNode === range.startContainer) {
-					startNode = currentNode.childNodes[range.startOffset - 1];
+					if (range.startOffset > 0) {
+						startNode =
+							currentNode.childNodes[range.startOffset - 1];
+					} else {
+						start = cursor;
+					}
 				}
 				if (currentNode === range.endContainer) {
-					endNode = currentNode.childNodes[range.endOffset - 1];
+					if (range.endOffset > 0) {
+						endNode = currentNode.childNodes[range.endOffset - 1];
+					} else {
+						end = cursor;
+						break;
+					}
 				}
 			}
 
