@@ -17,8 +17,9 @@ import type {
 import type { MarkdownStyles, MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
 import parser from "../../wasm/parser/parser.mjs";
+import { DiffDOM } from "diff-dom";
 
-// React.createElement monkey patch
+/** React.createElement monkey patch */
 const originalCreateElement = React.createElement;
 const modifiedCreateElement = (type, props, ...children) => {
 	const isMarkdownTextInput = props?.style?.["--MarkdownTextInput"];
@@ -43,11 +44,11 @@ const modifiedCreateElement = (type, props, ...children) => {
 };
 Object.assign(React, { createElement: modifiedCreateElement });
 
-// WebAssembly parser
+/** WebAssembly parser */
 const parserModule = parser();
 function format(text: string): string {
 	if (text.length === 0) {
-		return "";
+		return "<md-div></md-div>";
 	}
 
 	const textPtr = parserModule._malloc((text.length + 1) * 2);
@@ -63,7 +64,14 @@ function format(text: string): string {
 	return formatedText;
 }
 
-// CSS builder
+/** DOM differ */
+const dd = new DiffDOM({
+	maxDepth: false,
+	maxChildCount: false,
+	valueDiffing: false,
+});
+
+/** CSS builder */
 const markdownStyleKeyHTMLTag: Record<keyof MarkdownStyles, string> = {
 	h1: "md-h1",
 	h2: "md-h2",
@@ -451,7 +459,8 @@ function MarkdownTextInput(
 
 	/** Sync state to DOM */
 	if (innerRef.current && isValueStale.current) {
-		innerRef.current.innerHTML = format(value);
+		const diff = dd.diff(innerRef.current.firstChild, format(value));
+		dd.apply(innerRef.current.firstChild, diff);
 		isValueStale.current = false;
 	}
 
@@ -471,8 +480,8 @@ function MarkdownTextInput(
 		Object.defineProperty(innerRef.current, "value", {
 			/** Used to get the `text` value that is sent with events e.g. onFocus */
 			get: () => innerRef.current.innerText,
-			/** Used to clear the input (thus innerText is enough) */
-			set: (newValue) => (innerRef.current.innerText = newValue),
+			/** Used to set/clear the input */
+			set: (newValue) => (innerRef.current.innerHTML = format(newValue)),
 		});
 
 		Object.defineProperty(innerRef.current, "selectionStart", {
