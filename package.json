@@ -38,9 +38,6 @@
 		"url": "https://github.com/s77rt/react-native-markdown/issues"
 	},
 	"homepage": "https://github.com/s77rt/react-native-markdown#readme",
-	"dependencies": {
-		"diff-dom": "^5.1.4"
-	},
 	"devDependencies": {},
 	"peerDependencies": {
 		"react": "*",

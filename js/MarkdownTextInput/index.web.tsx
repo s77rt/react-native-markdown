@@ -17,7 +17,6 @@ import type {
 import type { MarkdownStyles, MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
 import parser from "../../wasm/parser/parser.mjs";
-import { DiffDOM } from "diff-dom";
 
 /** React.createElement monkey patch */
 const originalCreateElement = React.createElement;
@@ -63,13 +62,6 @@ function format(text: string): string {
 
 	return formatedText;
 }
-
-/** DOM differ */
-const dd = new DiffDOM({
-	maxDepth: false,
-	maxChildCount: false,
-	valueDiffing: false,
-});
 
 /** CSS builder */
 const markdownStyleKeyHTMLTag: Record<keyof MarkdownStyles, string> = {
@@ -464,12 +456,7 @@ function MarkdownTextInput(
 
 	/** Sync state to DOM */
 	if (innerRef.current && isValueStale.current) {
-		if (innerRef.current.firstChild?.nodeName === "MD-DIV") {
-			const diff = dd.diff(innerRef.current.firstChild, format(value));
-			dd.apply(innerRef.current.firstChild, diff);
-		} else {
-			innerRef.current.innerHTML = format(value);
-		}
+		innerRef.current.innerHTML = format(value);
 		isValueStale.current = false;
 	}
 
