@@ -48,7 +48,7 @@ Object.assign(React, { createElement: modifiedCreateElement });
 const parserModule = parser();
 function format(text: string): string {
 	if (text.length === 0) {
-		return "<md-div></md-div>";
+		return "";
 	}
 
 	const textPtr = parserModule._malloc((text.length + 1) * 2);
@@ -459,8 +459,12 @@ function MarkdownTextInput(
 
 	/** Sync state to DOM */
 	if (innerRef.current && isValueStale.current) {
-		const diff = dd.diff(innerRef.current.firstChild, format(value));
-		dd.apply(innerRef.current.firstChild, diff);
+		if (innerRef.current.firstChild?.nodeName === "MD-DIV") {
+			const diff = dd.diff(innerRef.current.firstChild, format(value));
+			dd.apply(innerRef.current.firstChild, diff);
+		} else {
+			innerRef.current.innerHTML = format(value);
+		}
 		isValueStale.current = false;
 	}
 
@@ -480,8 +484,8 @@ function MarkdownTextInput(
 		Object.defineProperty(innerRef.current, "value", {
 			/** Used to get the `text` value that is sent with events e.g. onFocus */
 			get: () => innerRef.current.innerText,
-			/** Used to set/clear the input */
-			set: (newValue) => (innerRef.current.innerHTML = format(newValue)),
+			/** Used to clear the input (thus innerText is enough) */
+			set: (newValue) => (innerRef.current.innerText = newValue),
 		});
 
 		Object.defineProperty(innerRef.current, "selectionStart", {
