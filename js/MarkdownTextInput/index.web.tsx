@@ -459,18 +459,18 @@ function MarkdownTextInput(
 		[setValue, onChangeTextProp, multiline]
 	);
 
+	/** Sync state to DOM */
+	if (innerRef.current && isValueStale.current) {
+		innerRef.current.innerHTML = format(value);
+		isValueStale.current = false;
+	}
+
 	/** Sync props to state */
 	if (selectionProp !== undefined && selectionProp != selection) {
 		setSelection(selectionProp);
 	}
 	if (valueProp !== undefined && valueProp != value) {
 		setValue(valueProp);
-	}
-
-	/** Sync state to DOM */
-	if (innerRef.current && isValueStale.current) {
-		innerRef.current.innerHTML = format(value);
-		isValueStale.current = false;
 	}
 
 	/** CSS injection */
