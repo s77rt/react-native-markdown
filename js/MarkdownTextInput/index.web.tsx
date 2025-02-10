@@ -119,6 +119,7 @@ function buildMarkdownStylesCSS(
 
 		if (styleKey === "blockquote") {
 			css += "box-decoration-break: clone;";
+			css += "-webkit-box-decoration-break: clone;";
 
 			if (styleValue["gapWidth"] !== undefined) {
 				css += "padding-left:" + styleValue["gapWidth"] + "px;";
