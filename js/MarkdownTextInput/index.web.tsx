@@ -117,7 +117,20 @@ function buildMarkdownStylesCSS(
 			css += "font-weight:" + styleValue["fontWeight"] + ";";
 		}
 
-		// s77rt add blockquote
+		if (styleKey === "blockquote") {
+			css += "box-decoration-break: clone;";
+
+			if (styleValue["gapWidth"] !== undefined) {
+				css += "padding-left:" + styleValue["gapWidth"] + "px;";
+			}
+			if (styleValue["stripeWidth"] !== undefined) {
+				css += "border-left-width:" + styleValue["stripeWidth"] + "px;";
+			}
+			if (styleValue["stripeColor"] !== undefined) {
+				css += "border-left-color:" + styleValue["stripeColor"] + ";";
+				css += "border-left-style:solid;";
+			}
+		}
 
 		css += "}";
 	}
