@@ -427,7 +427,7 @@ function MarkdownTextInput(
 	const onChangeText = useCallback(
 		(text: string) => {
 			const newValue = multiline
-				? text.replace(/\r/g, "")
+				? text.replaceAll(/\r/g, "")
 				: text.replaceAll(/[\n\r]/g, "");
 			setValue(newValue);
 			onChangeTextProp?.(newValue);
