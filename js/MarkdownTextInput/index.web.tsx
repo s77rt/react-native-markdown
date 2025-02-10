@@ -172,6 +172,7 @@ function buildMarkdownStylesCSS(
 // s77rt spellcheck flickers
 // s7rrt add a differ to only update the part that changed?
 // s77rt fix bug: type: ` then press enter, cursor should be on the next line
+// s77rt test native
 
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
@@ -240,7 +241,7 @@ function getSelectionDOM(node: HTMLElement) {
 			}
 		}
 	}
-
+	console.log("getSelectionDOM", start, end);
 	return { start, end };
 }
 
@@ -410,12 +411,14 @@ function MarkdownTextInput(
 		selectionProp ?? { start: value.length, end: value.length }
 	);
 	const selectionStore = useRef(selection);
+	const isSelectionStale = useRef(false);
 
 	/** Selection setter */
 	const setSelection = useCallback(
 		(newSelection: { start: number; end: number }) => {
 			setSelectionInternal(newSelection);
 			selectionStore.current = newSelection;
+			isSelectionStale.current = true;
 		},
 		[]
 	);
@@ -478,6 +481,10 @@ function MarkdownTextInput(
 		innerRef.current.innerHTML = format(value);
 		isValueStale.current = false;
 	}
+	if (innerRef.current && isSelectionStale.current) {
+		setSelectionDOM(innerRef.current, selection);
+		isSelectionStale.current = false;
+	}
 
 	/** Sync props to state */
 	if (selectionProp !== undefined && selectionProp != selection) {
@@ -507,36 +514,16 @@ function MarkdownTextInput(
 		});
 
 		Object.defineProperty(innerRef.current, "selectionStart", {
-			/** Used to check if the selection is stale (DOM vs state).
-			 *
-			 * If the selection is 0 return undefined instead to force setting the selection because on Safari after Ctrl+A and Delete,
-			 * the selection becomes broken and can't enter new lines.
-			 */
-			get: () => {
-				const selectionDOM = getSelectionDOM(innerRef.current);
-				if (selectionDOM?.start === 0 && selectionDOM?.end === 0) {
-					return undefined;
-				}
-				return selectionDOM?.start;
-			},
+			/** Used to check if the selection is stale */
+			get: () => selectionStore.current.start,
 		});
 		Object.defineProperty(innerRef.current, "selectionEnd", {
-			/** Used to check if the selection is stale (DOM vs state).
-			 *
-			 * If the selection is 0 return undefined instead to force setting the selection because on Safari after Ctrl+A and Delete,
-			 * the selection becomes broken and can't enter new lines.
-			 */
-			get: () => {
-				const selectionDOM = getSelectionDOM(innerRef.current);
-				if (selectionDOM?.start === 0 && selectionDOM?.end === 0) {
-					return undefined;
-				}
-				return selectionDOM?.end;
-			},
+			/** Used to check if the selection is stale */
+			get: () => selectionStore.current.end,
 		});
 
 		Object.defineProperty(innerRef.current, "setSelectionRange", {
-			/** Used to sync the `selection` state with the DOM selection */
+			/** Used to set the selection */
 			value: (start: number, end: number) =>
 				setSelectionDOM(innerRef.current, { start, end }),
 		});
@@ -557,15 +544,14 @@ function MarkdownTextInput(
 			}
 
 			const selectionDOM = getSelectionDOM(innerRef.current);
-			console.log("getSelectionDOM result", selectionDOM?.start);
 			if (!selectionDOM) {
 				return;
 			}
 
-			const isSelectionStale =
+			const isSelectionDirty =
 				selectionDOM.start != selectionStore.current.start ||
 				selectionDOM.end != selectionStore.current.end;
-			if (!isSelectionStale) {
+			if (!isSelectionDirty) {
 				return;
 			}
 
