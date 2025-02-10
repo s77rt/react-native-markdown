@@ -1,47 +1,25 @@
-import React, { useMemo } from "react";
-import { TextInput, processColor } from "react-native";
+import React, { useMemo, forwardRef } from "react";
+import type { ForwardedRef } from "react";
+import { TextInput } from "react-native";
 import RTNMarkdownNativeComponent from "../RTNMarkdownNativeComponent";
 import type { MarkdownTextInputProps } from "../types";
+import { processStyles } from "../utils";
 
-const processFontWeight = (fontWeight: any) => {
-	if (typeof fontWeight === "number") {
-		return fontWeight.toString();
-	}
-	return fontWeight;
-};
-
-const processStyles = (obj: {}) => {
-	Object.keys(obj).forEach((key) => {
-		if (typeof obj[key] === "object" && obj[key] !== null) {
-			processStyles(obj[key]);
-			return;
-		}
-		if (["backgroundColor", "color", "stripeColor"].includes(key)) {
-			obj[key] = processColor(obj[key]);
-			return;
-		}
-		if (["fontWeight"].includes(key)) {
-			obj[key] = processFontWeight(obj[key]);
-			return;
-		}
-	});
-};
-
-function MarkdownTextInput({
-	markdownStyles: _markdownStyles,
-	...rest
-}: MarkdownTextInputProps) {
+function MarkdownTextInput(
+	{ markdownStyles: markdownStylesProp, ...rest }: MarkdownTextInputProps,
+	ref: ForwardedRef<TextInput>
+) {
 	const markdownStyles = useMemo(() => {
-		const styles = JSON.parse(JSON.stringify(_markdownStyles));
+		const styles = JSON.parse(JSON.stringify(markdownStylesProp));
 		processStyles(styles);
 		return styles;
-	}, [_markdownStyles]);
+	}, [markdownStylesProp]);
 
 	return (
 		<RTNMarkdownNativeComponent markdownStyles={markdownStyles}>
-			<TextInput {...rest} />
+			<TextInput ref={ref} {...rest} />
 		</RTNMarkdownNativeComponent>
 	);
 }
 
-export default MarkdownTextInput;
+export default React.memo(forwardRef(MarkdownTextInput));

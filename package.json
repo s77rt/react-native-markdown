@@ -6,7 +6,12 @@
 	"source": "js/index",
 	"main": "js/index",
 	"files": [
+		"scripts",
+		"md4c/src/md4c.h",
+		"md4c/src/md4c.c",
+		"cpp",
 		"js",
+		"wasm",
 		"android",
 		"ios",
 		"react-native-markdown.podspec",
@@ -16,6 +21,9 @@
 		"!**/__fixtures__",
 		"!**/__mocks__"
 	],
+	"scripts": {
+		"prepare": "./scripts/prepare.sh"
+	},
 	"keywords": [
 		"react-native",
 		"markdown"
