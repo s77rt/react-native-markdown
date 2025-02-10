@@ -378,10 +378,15 @@ function MarkdownTextInput(
 
 	/** Selection setter */
 	const setSelection = useCallback(
-		(newSelection: { start: number; end: number }) => {
+		(
+			newSelection: { start: number; end: number },
+			shouldInvalidate: boolean
+		) => {
 			setSelectionInternal(newSelection);
 			selectionStore.current = newSelection;
-			isSelectionStale.current = true;
+			if (shouldInvalidate) {
+				isSelectionStale.current = true;
+			}
 		},
 		[]
 	);
@@ -400,18 +405,20 @@ function MarkdownTextInput(
 				  (oldValue.length - oldValuegnoredOffset) +
 				  (newValue.length - newValueIgnoredOffset);
 
-			setSelection({ start: position, end: position });
+			setSelection({ start: position, end: position }, true);
 		},
 		[setSelection]
 	);
 
 	/** Value setter */
 	const setValue = useCallback(
-		(newValue: string) => {
+		(newValue: string, shouldInvalidate: boolean) => {
 			setValueInternal(newValue);
 			syncCursorPosition(newValue);
 			valueStore.current = newValue;
-			isValueStale.current = true;
+			if (shouldInvalidate) {
+				isValueStale.current = true;
+			}
 		},
 		[syncCursorPosition]
 	);
@@ -419,7 +426,7 @@ function MarkdownTextInput(
 	/** Events */
 	const onSelectionChange = useCallback(
 		(event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
-			setSelection(event.nativeEvent.selection);
+			setSelection(event.nativeEvent.selection, false);
 			onSelectionChangeProp?.(event);
 		},
 		[setSelection, onSelectionChangeProp]
@@ -429,7 +436,7 @@ function MarkdownTextInput(
 			const newValue = multiline
 				? text.replaceAll(/\r/g, "")
 				: text.replaceAll(/[\n\r]/g, "");
-			setValue(newValue);
+			setValue(newValue, true);
 			onChangeTextProp?.(newValue);
 		},
 		[setValue, onChangeTextProp, multiline]
@@ -447,10 +454,10 @@ function MarkdownTextInput(
 
 	/** Sync props to state */
 	if (selectionProp !== undefined && selectionProp != selection) {
-		setSelection(selectionProp);
+		setSelection(selectionProp, true);
 	}
 	if (valueProp !== undefined && valueProp != value) {
-		setValue(valueProp);
+		setValue(valueProp, true);
 	}
 
 	/** CSS injection */
@@ -552,7 +559,6 @@ function MarkdownTextInput(
 		<TextInput
 			ref={ref}
 			style={style}
-			selection={selection}
 			onChangeText={onChangeText}
 			multiline={multiline}
 			dataSet={dataSet}
