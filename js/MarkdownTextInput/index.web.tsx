@@ -58,7 +58,6 @@ function format(text: string): string {
 
 	const formatedText = parserModule.UTF16ToString(formatedTextPtr);
 	parserModule._free(formatedTextPtr);
-	console.log("s77rt format");
 
 	return formatedText;
 }
@@ -139,41 +138,6 @@ function buildMarkdownStylesCSS(
 	return css;
 }
 
-// s77rt onChangeSelection
-// s77rt set selection
-// s77rt value="const string" - not worth it yet?
-// s77rt format text
-// s77rt retest controlled input (and cursor jump)
-// s77rt replace useLayoutEffect with useEffect?
-// s77rt undo functionality
-// s77rt inject css styles so we don't build same styles multiple times + account for multiple components with diff styles OR just use a template
-// s77rt verify both single line and multi line
-// s77rt if we change the text (e.g. truncate text), make sure we still land on the correct cursor position - or I think this is the responsibility of the user
-// s77rt check newlines
-// s77rt add selectionEnd, selectionStart getters and setSelectionRange
-// s77rt if current index is last, new cursor should be srt last directly without loop
-// s77rt on paste we should be at the end of the pasted text
-// s77rt paste same text twice on same place and verify that we format it
-// s77rt paste add extra \n if last char is \n
-// s77rt format should be called once
-// s77rt use state?
-// s77rt add cache
-// s77rt remove console logs
-// s77rt cache selection dom
-// s77rt fix bug: write "text\na" remove the "a", you should be in the second line
-// s77rt test on safari
-// s77rt fix bug: type '\na\nb' and set selection to 0,2 and 1,4
-// s77rt in safari sometimes we can't add line breaks after ctrl+a and delete
-// s77rt selection default value to value.length
-// s77rt usecallback on ref
-// s77rt default value
-// s77rt test format text that contains arabic and emojis (utf16 test)
-// s77rt fix bug: type: ``` then press enter, cursor should be on the next line
-// s77rt spellcheck flickers
-// s7rrt add a differ to only update the part that changed?
-// s77rt fix bug: type: ` then press enter, cursor should be on the next line
-// s77rt test native
-
 function getSelectionDOM(node: HTMLElement) {
 	const sel = window.getSelection();
 	if (!sel) {
@@ -241,7 +205,6 @@ function getSelectionDOM(node: HTMLElement) {
 			}
 		}
 	}
-	console.log("getSelectionDOM", start, end);
 	return { start, end };
 }
 
@@ -437,8 +400,6 @@ function MarkdownTextInput(
 				  (oldValue.length - oldValuegnoredOffset) +
 				  (newValue.length - newValueIgnoredOffset);
 
-			console.log("new pos", position);
-
 			setSelection({ start: position, end: position });
 		},
 		[setSelection]
@@ -458,7 +419,6 @@ function MarkdownTextInput(
 	/** Events */
 	const onSelectionChange = useCallback(
 		(event: NativeSyntheticEvent<TextInputSelectionChangeEventData>) => {
-			console.log("selection");
 			setSelection(event.nativeEvent.selection);
 			onSelectionChangeProp?.(event);
 		},
@@ -466,7 +426,6 @@ function MarkdownTextInput(
 	);
 	const onChangeText = useCallback(
 		(text: string) => {
-			console.log("change");
 			const newValue = multiline
 				? text.replace(/\r/g, "")
 				: text.replaceAll(/[\n\r]/g, "");
