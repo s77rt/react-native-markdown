@@ -83,14 +83,17 @@ const markdownStyleKeyHTMLTag: Record<keyof MarkdownStyles, string> = {
 	strikethrough: "md-s",
 	underline: "md-u",
 };
-function buildMarkdownStylesCSS(markdownStyles: MarkdownStyles): string {
-	let css = "";
+function buildMarkdownStylesCSS(
+	markdownStyles: MarkdownStyles,
+	mdID: string
+): string {
+	const baseSelector = `div[data-md-id="${mdID}"]`;
 
-	const selector = "md-div"; //s77rt
-	css += selector + "{display:inline;}";
+	const selector = baseSelector + " md-div";
+	let css = selector + "{display:inline;}";
 
 	for (const [styleKey, styleValue] of Object.entries(markdownStyles)) {
-		const selector = markdownStyleKeyHTMLTag[styleKey];
+		const selector = baseSelector + " " + markdownStyleKeyHTMLTag[styleKey];
 		css += selector + "{";
 
 		css += "display:inline;";
@@ -331,6 +334,7 @@ function MarkdownTextInput(
 	{
 		markdownStyles: markdownStylesProp,
 		style: styleProp,
+		dataSet: dataSetProp,
 		defaultValue: defaultValueProp,
 		value: valueProp,
 		selection: selectionProp,
@@ -341,12 +345,13 @@ function MarkdownTextInput(
 	}: MarkdownTextInputProps,
 	outerRef: ForwardedRef<TextInput>
 ) {
+	const [id] = useState<string>(() => crypto.randomUUID());
+
 	const markdownStyles = useMemo(() => {
 		const styles = JSON.parse(JSON.stringify(markdownStylesProp));
 		processStyles(styles);
 		return styles;
 	}, [markdownStylesProp]);
-	console.log(buildMarkdownStylesCSS(markdownStyles));
 
 	const style = useMemo(
 		() => ({
@@ -356,6 +361,14 @@ function MarkdownTextInput(
 			"--MarkdownTextInput": true,
 		}),
 		[styleProp]
+	);
+
+	const dataSet = useMemo(
+		() => ({
+			...dataSetProp,
+			"md-id": id,
+		}),
+		[dataSetProp, id]
 	);
 
 	const innerRef = useRef<TextInput>();
@@ -462,13 +475,12 @@ function MarkdownTextInput(
 
 	/** CSS injection */
 	useInsertionEffect(() => {
-		console.log("running useInsertionEffect");
 		const styleElement = document.createElement("style");
-		styleElement.textContent = buildMarkdownStylesCSS(markdownStyles);
+		styleElement.textContent = buildMarkdownStylesCSS(markdownStyles, id);
 		document.head.append(styleElement);
 
-		// s77rt cleanup
-	}, [markdownStyles]);
+		return () => styleElement.remove();
+	}, [id, markdownStyles]);
 
 	// Add missing properties that are used in RNW TextInput implementation
 	// https://github.com/necolas/react-native-web/blob/fcbe2d1e9225282671e39f9f639e2cb04c7e1e65/packages/react-native-web/src/exports/TextInput/index.js
@@ -584,6 +596,7 @@ function MarkdownTextInput(
 			selection={selection}
 			onChangeText={onChangeText}
 			multiline={multiline}
+			dataSet={dataSet}
 			{...rest}
 		/>
 	);
