@@ -3,6 +3,7 @@ package com.rtnmarkdown;
 import android.content.Context;
 import android.graphics.Typeface;
 import android.text.Spannable;
+import android.text.style.TypefaceSpan;
 import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.common.ReactConstants;
 import com.facebook.react.uimanager.PixelUtil;
@@ -187,9 +188,14 @@ public class MarkdownFormatter {
       int end = attribute.location + attribute.length;
       int flags = Spannable.SPAN_EXCLUSIVE_EXCLUSIVE;
 
+      Typeface baseTypeface = defaultTypeface;
+      for (TypefaceSpan typefaceSpan :
+           markdownString.getSpans(start, end, TypefaceSpan.class)) {
+        baseTypeface = typefaceSpan.getTypeface();
+      }
+
       for (MarkdownSpan span : spans) {
-        markdownString.setSpan(span.spanWith(defaultTypeface), start, end,
-                               flags);
+        markdownString.setSpan(span.spanWith(baseTypeface), start, end, flags);
       }
     }
   }

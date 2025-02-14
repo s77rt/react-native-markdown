@@ -180,10 +180,14 @@
 
     NSRange range = NSMakeRange(attribute.location, attribute.length);
 
+    NSDictionary<NSAttributedStringKey, id> *baseTextAttributes =
+        [markdownString attributesAtIndex:attribute.location
+                           effectiveRange:nil];
+
     for (NSAttributedStringKey attributeKey in attributes) {
       [markdownString addAttribute:attributeKey
                              value:[attributes[attributeKey]
-                                       attributeWith:defaultTextAttributes
+                                       attributeWith:baseTextAttributes
                                                data1:attribute.data1]
                              range:range];
     }
