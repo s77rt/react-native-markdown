@@ -92,9 +92,7 @@
   return self;
 }
 
-- (void)format:(NSMutableAttributedString *)markdownString
-    withDefaultTextAttributes:
-        (NSDictionary<NSString *, id> *)defaultTextAttributes {
+- (void)format:(NSMutableAttributedString *)markdownString {
   NSData *input = [markdownString.string
       dataUsingEncoding:NSUTF16LittleEndianStringEncoding];
   const unsigned inputSize = markdownString.string.length;

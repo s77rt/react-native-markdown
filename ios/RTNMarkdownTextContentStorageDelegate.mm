@@ -35,8 +35,7 @@
       [textContentStorage.attributedString mutableCopy];
 
   [markdownString beginEditing];
-  [_formatter format:markdownString
-      withDefaultTextAttributes:_backedTextInputView.defaultTextAttributes];
+  [_formatter format:markdownString];
   [markdownString endEditing];
 
   _previousString = [textContentStorage.attributedString copy];

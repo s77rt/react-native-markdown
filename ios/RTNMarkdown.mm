@@ -92,8 +92,6 @@ using namespace facebook::react;
     NSTextContentStorage *textContentStorage =
         (NSTextContentStorage *)(textLayoutManager.textContentManager);
 
-    _textContentStorageDelegate.backedTextInputView = _backedTextInputView;
-
     textLayoutManager.delegate = _textLayoutManagerDelegate;
     textContentStorage.delegate = _textContentStorageDelegate;
   }
