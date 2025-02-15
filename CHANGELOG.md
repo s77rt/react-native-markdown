@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.3] - 2025-02-15
+
+### Fixed
+
+-   Web: H2 not applied correctly in an edge case [#18].
+
 ## [0.2.2] - 2025-02-15
 
 ### Fixed
@@ -33,6 +39,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[0.2.3]: https://github.com/s77rt/react-native-markdown/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/s77rt/react-native-markdown/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/s77rt/react-native-markdown/compare/v0.2.0...v0.2.1
 [0.2.0]: https://github.com/s77rt/react-native-markdown/compare/v0.1.1...v0.2.0
