@@ -179,8 +179,7 @@
     NSRange range = NSMakeRange(attribute.location, attribute.length);
 
     NSDictionary<NSAttributedStringKey, id> *baseTextAttributes =
-        [markdownString attributesAtIndex:attribute.location
-                           effectiveRange:nil];
+        [markdownString attributesAtIndex:range.location effectiveRange:nil];
 
     for (NSAttributedStringKey attributeKey in attributes) {
       [markdownString addAttribute:attributeKey
