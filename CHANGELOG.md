@@ -25,7 +25,7 @@ All notable changes to this project will be documented in this file.
 
 ### Added
 
--   Web support [#4].
+-   Web support ([#4](https://github.com/s77rt/react-native-markdown/issues/4)).
 
 ## [0.1.1] - 2025-01-13
 
