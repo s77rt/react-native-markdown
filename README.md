@@ -6,7 +6,7 @@ npm install @s77rt/react-native-markdown
 
 ## `<MarkdownTextInput />`
 
-<img align="right" alt="Demo" height="140" src="https://github.com/user-attachments/assets/abd7ebad-715f-4451-ad34-9f2074015d39">
+<img align="right" alt="Demo" height="140" src="https://raw.githubusercontent.com/s77rt/react-native-markdown/main/assets/demo.gif">
 
 `<MarkdownTextInput />` extends `<TextInput />` and can be used as a drop-in replacement.
 
