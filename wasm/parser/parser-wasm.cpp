@@ -93,19 +93,33 @@ wchar_t *wcsncat_html_encode_short(wchar_t *s1, const wchar_t *s2, size_t n) {
 
 typedef struct HTMLTag {
   unsigned position;
+  unsigned order;
+  bool isOpener;
   const wchar_t *tag;
 
   bool operator<(const HTMLTag &htmlTag) const {
-    return (position < htmlTag.position);
+    if (position == htmlTag.position) {
+      if (isOpener == htmlTag.isOpener) {
+        if (isOpener) {
+          return order < htmlTag.order;
+        }
+        return !(order < htmlTag.order);
+      }
+      return !isOpener;
+    }
+
+    return position < htmlTag.position;
   }
 } HTMLTag;
 
 wchar_t *parse_and_format(const wchar_t *input,
                           unsigned inputSize) asm("PARSEANDFORMAT");
 wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
+  unsigned order = 0;
+  std::vector<HTMLTag> htmlTags;
+
   std::vector<AttributeFeature> attributes = parse(input, inputSize);
 
-  std::vector<HTMLTag> htmlTags;
   for (const AttributeFeature &attribute : attributes) {
     if (attribute.length == 0) {
       continue;
@@ -195,9 +209,11 @@ wchar_t *parse_and_format(const wchar_t *input, unsigned inputSize) {
       closeTag = L"";
     };
 
-    htmlTags.push_back((HTMLTag){attribute.location, openTag});
-    htmlTags.push_back(
-        (HTMLTag){attribute.location + attribute.length, closeTag});
+    htmlTags.push_back((HTMLTag){attribute.location, order, true, openTag});
+    htmlTags.push_back((HTMLTag){attribute.location + attribute.length, order,
+                                 false, closeTag});
+
+    order++;
   }
   std::sort(htmlTags.begin(), htmlTags.end());
 
