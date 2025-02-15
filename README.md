@@ -1,5 +1,7 @@
 # React Native Markdown Components
 
+Drop-in replacements for React Native Components with a built-in Markdown formatter.
+
 ```bash
 npm install @s77rt/react-native-markdown
 ```
@@ -8,9 +10,9 @@ npm install @s77rt/react-native-markdown
 
 <img align="right" alt="Demo" height="140" src="https://raw.githubusercontent.com/s77rt/react-native-markdown/main/assets/demo.gif">
 
-`<MarkdownTextInput />` extends `<TextInput />` and can be used as a drop-in replacement.
+`<MarkdownTextInput />` is a drop-in replacement for `<TextInput />` with a built-in Markdown formatter.
 
-`<MarkdownTextInput />` accepts an addtional prop `markdownStyles` allowing you to customize the format of each markdown fragment. Please refer to [Markdown Styles](#markdown-styles) for the list of supported styles.
+`<MarkdownTextInput />` accepts an addtional prop `markdownStyles` allowing you to customize the format of each Markdown fragment. Please refer to [Markdown Styles](#markdown-styles) for the list of supported styles.
 
 ### Usage
 
