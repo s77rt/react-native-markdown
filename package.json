@@ -1,6 +1,6 @@
 {
 	"name": "@s77rt/react-native-markdown",
-	"version": "0.2.3",
+	"version": "0.2.4",
 	"description": "React Native Markdown Components",
 	"react-native": "js/index",
 	"source": "js/index",

@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.4] - 2025-02-17
+
+### Fixed
+
+-   iOS: Blockquote stripe vs cursor ([#11](https://github.com/s77rt/react-native-markdown/issues/11)).
+
 ## [0.2.3] - 2025-02-15
 
 ### Fixed
@@ -39,6 +45,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[0.2.4]: https://github.com/s77rt/react-native-markdown/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/s77rt/react-native-markdown/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/s77rt/react-native-markdown/compare/v0.2.1...v0.2.2
 [0.2.1]: https://github.com/s77rt/react-native-markdown/compare/v0.2.0...v0.2.1
