@@ -308,6 +308,65 @@ function selectAllDOM(node: Node) {
 	sel.selectAllChildren(node);
 }
 
+// s77rt: what if we add text in the middle?
+// s77rt: check for equalitiy without using isEqualNode
+const domParser = new DOMParser();
+function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
+	for (
+		let currentNodeChildIndex = 0, targetNodeChildIndex = 0;
+		currentNodeChildIndex < currentNode.childNodes.length ||
+		targetNodeChildIndex < targetNode.childNodes.length;
+		currentNodeChildIndex++, targetNodeChildIndex++
+	) {
+		const currentNodeChild = currentNode.childNodes[currentNodeChildIndex];
+		const targetNodeChild =
+			targetNode.childNodes[targetNodeChildIndex]?.cloneNode(true);
+
+		console.log(
+			"t",
+			currentNodeChild?.cloneNode(true),
+			targetNodeChild?.cloneNode(true),
+			currentNodeChildIndex,
+			currentNode.cloneNode(true),
+			targetNode.cloneNode(true)
+		);
+		if (currentNodeChild && !targetNodeChild) {
+			console.log("remove", currentNodeChild);
+			currentNode.removeChild(currentNodeChild);
+			currentNodeChildIndex--;
+			continue;
+		}
+		if (!currentNodeChild && targetNodeChild) {
+			console.log("add", targetNodeChild);
+			currentNode.appendChild(targetNodeChild);
+			currentNodeChildIndex++;
+			continue;
+		}
+
+		if (currentNodeChild.isEqualNode(targetNodeChild)) {
+			continue;
+		}
+
+		if (currentNodeChild.nodeName === targetNodeChild.nodeName) {
+			console.log("modify", currentNodeChild, targetNodeChild);
+			if (currentNodeChild.nodeType === Node.TEXT_NODE) {
+				currentNodeChild.textContent = targetNodeChild.textContent;
+				console.log("modify - text");
+			} else if (currentNodeChild.nodeType === Node.ELEMENT_NODE) {
+				transformNodeDOM(
+					currentNodeChild as HTMLElement,
+					targetNodeChild as HTMLElement
+				);
+				console.log("modify - elements");
+			}
+			continue;
+		}
+
+		currentNode.replaceChild(targetNodeChild, currentNodeChild);
+		console.log("replace", currentNodeChild, targetNodeChild);
+	}
+}
+
 function MarkdownTextInput(
 	{
 		markdownStyles: markdownStylesProp,
@@ -444,7 +503,11 @@ function MarkdownTextInput(
 
 	/** Sync state to DOM */
 	if (innerRef.current && isValueStale.current) {
-		innerRef.current.innerHTML = format(value);
+		transformNodeDOM(
+			innerRef.current,
+			domParser.parseFromString(format(value), "text/html").body
+		);
+		//innerRef.current.innerHTML = format(value);
 		isValueStale.current = false;
 	}
 	if (innerRef.current && isSelectionStale.current) {
