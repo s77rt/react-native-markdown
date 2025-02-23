@@ -308,6 +308,64 @@ function selectAllDOM(node: Node) {
 	sel.selectAllChildren(node);
 }
 
+const domParser = new DOMParser();
+function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
+	for (
+		let currentNodeChildIndex = 0, targetNodeChildIndex = 0;
+		currentNodeChildIndex < currentNode.childNodes.length ||
+		targetNodeChildIndex < targetNode.childNodes.length;
+		currentNodeChildIndex++, targetNodeChildIndex++
+	) {
+		const currentNodeChild = currentNode.childNodes[currentNodeChildIndex];
+		const currentNodeNextChild =
+			currentNode.childNodes[currentNodeChildIndex + 1];
+		const targetNodeChild = targetNode.childNodes[targetNodeChildIndex];
+		const targetNodeNextChild =
+			targetNode.childNodes[targetNodeChildIndex + 1];
+
+		if (currentNodeChild && !targetNodeChild) {
+			currentNode.removeChild(currentNodeChild);
+			currentNodeChildIndex--;
+			continue;
+		}
+		if (!currentNodeChild && targetNodeChild) {
+			currentNode.appendChild(targetNodeChild);
+			targetNodeChildIndex--;
+			continue;
+		}
+
+		if (currentNodeChild.isEqualNode(targetNodeChild)) {
+			continue;
+		}
+
+		if (currentNodeNextChild?.isEqualNode(targetNodeChild)) {
+			currentNode.removeChild(currentNodeChild);
+			continue;
+		}
+
+		if (targetNodeNextChild?.isEqualNode(currentNodeChild)) {
+			currentNode.insertBefore(targetNodeChild, currentNodeChild);
+			currentNodeChildIndex++;
+			continue;
+		}
+
+		if (currentNodeChild.nodeName === targetNodeChild.nodeName) {
+			if (currentNodeChild.nodeType === Node.TEXT_NODE) {
+				currentNodeChild.textContent = targetNodeChild.textContent;
+			} else if (currentNodeChild.nodeType === Node.ELEMENT_NODE) {
+				transformNodeDOM(
+					currentNodeChild as HTMLElement,
+					targetNodeChild as HTMLElement
+				);
+			}
+			continue;
+		}
+
+		currentNode.replaceChild(targetNodeChild, currentNodeChild);
+		targetNodeChildIndex--;
+	}
+}
+
 function MarkdownTextInput(
 	{
 		markdownStyles: markdownStylesProp,
@@ -444,7 +502,10 @@ function MarkdownTextInput(
 
 	/** Sync state to DOM */
 	if (innerRef.current && isValueStale.current) {
-		innerRef.current.innerHTML = format(value);
+		transformNodeDOM(
+			innerRef.current,
+			domParser.parseFromString(format(value), "text/html").body
+		);
 		isValueStale.current = false;
 	}
 	if (innerRef.current && isSelectionStale.current) {
