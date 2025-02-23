@@ -308,10 +308,6 @@ function selectAllDOM(node: Node) {
 	sel.selectAllChildren(node);
 }
 
-// s77rt: what if we add text in the middle?
-// s77rt: check for equalitiy without using isEqualNode
-// s77rt: undo (history)
-// s77rt: avoid cloneNode, instead just change the index
 const domParser = new DOMParser();
 function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 	for (
