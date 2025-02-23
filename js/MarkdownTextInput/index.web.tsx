@@ -345,14 +345,12 @@ function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 
 		if (currentNodeNextChild?.isEqualNode(targetNodeChild)) {
 			currentNode.removeChild(currentNodeChild);
-			currentNodeChildIndex--;
-			targetNodeChildIndex--;
 			continue;
 		}
 
 		if (targetNodeNextChild?.isEqualNode(currentNodeChild)) {
 			currentNode.insertBefore(targetNodeChild, currentNodeChild);
-			targetNodeChildIndex--;
+			currentNodeChildIndex++;
 			continue;
 		}
 
