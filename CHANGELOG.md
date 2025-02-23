@@ -2,6 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.0] - 2025-02-23
+
+### Changed
+
+-   Web: Use DOM differ (instead of direct innerHTML replacement) ([#19](https://github.com/s77rt/react-native-markdown/pull/19)).
+
+### Fixed
+
+-   Web: Missing undo functionality ([#15](https://github.com/s77rt/react-native-markdown/issues/15)).
+
 ## [0.2.4] - 2025-02-17
 
 ### Fixed
@@ -45,6 +55,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[0.3.0]: https://github.com/s77rt/react-native-markdown/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/s77rt/react-native-markdown/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/s77rt/react-native-markdown/compare/v0.2.2...v0.2.3
 [0.2.2]: https://github.com/s77rt/react-native-markdown/compare/v0.2.1...v0.2.2
