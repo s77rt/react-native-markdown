@@ -310,6 +310,8 @@ function selectAllDOM(node: Node) {
 
 // s77rt: what if we add text in the middle?
 // s77rt: check for equalitiy without using isEqualNode
+// s77rt: undo (history)
+// s77rt: avoid cloneNode, instead just change the index
 const domParser = new DOMParser();
 function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 	for (
@@ -319,27 +321,21 @@ function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 		currentNodeChildIndex++, targetNodeChildIndex++
 	) {
 		const currentNodeChild = currentNode.childNodes[currentNodeChildIndex];
-		const targetNodeChild =
-			targetNode.childNodes[targetNodeChildIndex]?.cloneNode(true);
+		const currentNodeNextChild =
+			currentNode.childNodes[currentNodeChildIndex + 1];
+		const targetNodeChild = targetNode.childNodes[targetNodeChildIndex];
+		const targetNodeNextChild =
+			targetNode.childNodes[targetNodeChildIndex + 1];
 
-		console.log(
-			"t",
-			currentNodeChild?.cloneNode(true),
-			targetNodeChild?.cloneNode(true),
-			currentNodeChildIndex,
-			currentNode.cloneNode(true),
-			targetNode.cloneNode(true)
-		);
 		if (currentNodeChild && !targetNodeChild) {
-			console.log("remove", currentNodeChild);
 			currentNode.removeChild(currentNodeChild);
 			currentNodeChildIndex--;
 			continue;
 		}
 		if (!currentNodeChild && targetNodeChild) {
-			console.log("add", targetNodeChild);
 			currentNode.appendChild(targetNodeChild);
 			currentNodeChildIndex++;
+			targetNodeChildIndex--;
 			continue;
 		}
 
@@ -347,23 +343,33 @@ function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 			continue;
 		}
 
+		if (currentNodeNextChild?.isEqualNode(targetNodeChild)) {
+			currentNode.removeChild(currentNodeChild);
+			currentNodeChildIndex--;
+			targetNodeChildIndex--;
+			continue;
+		}
+
+		if (targetNodeNextChild?.isEqualNode(currentNodeChild)) {
+			currentNode.insertBefore(targetNodeChild, currentNodeChild);
+			targetNodeChildIndex--;
+			continue;
+		}
+
 		if (currentNodeChild.nodeName === targetNodeChild.nodeName) {
-			console.log("modify", currentNodeChild, targetNodeChild);
 			if (currentNodeChild.nodeType === Node.TEXT_NODE) {
 				currentNodeChild.textContent = targetNodeChild.textContent;
-				console.log("modify - text");
 			} else if (currentNodeChild.nodeType === Node.ELEMENT_NODE) {
 				transformNodeDOM(
 					currentNodeChild as HTMLElement,
 					targetNodeChild as HTMLElement
 				);
-				console.log("modify - elements");
 			}
 			continue;
 		}
 
 		currentNode.replaceChild(targetNodeChild, currentNodeChild);
-		console.log("replace", currentNodeChild, targetNodeChild);
+		targetNodeChildIndex--;
 	}
 }
 
