@@ -510,7 +510,6 @@ function MarkdownTextInput(
 			innerRef.current,
 			domParser.parseFromString(format(value), "text/html").body
 		);
-		//innerRef.current.innerHTML = format(value);
 		isValueStale.current = false;
 	}
 	if (innerRef.current && isSelectionStale.current) {
