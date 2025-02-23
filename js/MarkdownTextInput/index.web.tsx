@@ -334,7 +334,6 @@ function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 		}
 		if (!currentNodeChild && targetNodeChild) {
 			currentNode.appendChild(targetNodeChild);
-			currentNodeChildIndex++;
 			targetNodeChildIndex--;
 			continue;
 		}
