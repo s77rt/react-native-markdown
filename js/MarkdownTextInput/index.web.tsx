@@ -454,13 +454,13 @@ function MarkdownTextInput(
 		(newValue: string) => {
 			const oldValue = valueStore.current;
 
-			const oldValuegnoredOffset = oldValue.at(-1) === "\n" ? 1 : 0;
+			const oldValueIgnoredOffset = oldValue.at(-1) === "\n" ? 1 : 0;
 			const newValueIgnoredOffset = newValue.at(-1) === "\n" ? 1 : 0;
 
 			const position = isDeleteContentForward.current
 				? selectionStore.current.start
 				: selectionStore.current.end -
-				  (oldValue.length - oldValuegnoredOffset) +
+				  (oldValue.length - oldValueIgnoredOffset) +
 				  (newValue.length - newValueIgnoredOffset);
 
 			setSelection({ start: position, end: position }, true);
