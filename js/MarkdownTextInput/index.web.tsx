@@ -392,6 +392,7 @@ function MarkdownTextInput(
 	const style = useMemo(
 		() => ({
 			overflow: "auto",
+			whiteSpace: "pre-wrap",
 			...styleProp,
 			// This style is used to identify our TextInput in the React.createElement stage
 			"--MarkdownTextInput": true,
