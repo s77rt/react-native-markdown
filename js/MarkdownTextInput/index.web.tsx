@@ -353,6 +353,13 @@ function transformNodeDOM(currentNode: HTMLElement, targetNode: HTMLElement) {
 			if (currentNodeChild.nodeType === Node.TEXT_NODE) {
 				currentNodeChild.textContent = targetNodeChild.textContent;
 			} else if (currentNodeChild.nodeType === Node.ELEMENT_NODE) {
+				// Browsers may add style attribures to maintain text original format. This is unwanted behaviour. MD tags has no attributes.
+				while ((currentNodeChild as HTMLElement).hasAttributes()) {
+					(currentNodeChild as HTMLElement).removeAttribute(
+						(currentNodeChild as HTMLElement).attributes[0].name
+					);
+				}
+
 				transformNodeDOM(
 					currentNodeChild as HTMLElement,
 					targetNodeChild as HTMLElement
