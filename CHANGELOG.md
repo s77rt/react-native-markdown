@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.1] - 2025-02-28
+
+### Fixed
+
+-   Web: buggy selection on Firefox ([#24](https://github.com/s77rt/react-native-markdown/issues/24)).
+-   Web: Safari crashes on pasting attached text ([#21](https://github.com/s77rt/react-native-markdown/issues/21)).
+-   Web: MD-DIV has weird inline style ([#20](https://github.com/s77rt/react-native-markdown/issues/20)).
+
 ## [0.3.0] - 2025-02-23
 
 ### Changed
@@ -55,6 +63,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[0.3.1]: https://github.com/s77rt/react-native-markdown/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/s77rt/react-native-markdown/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/s77rt/react-native-markdown/compare/v0.2.3...v0.2.4
 [0.2.3]: https://github.com/s77rt/react-native-markdown/compare/v0.2.2...v0.2.3
