@@ -13,6 +13,7 @@ import { TextInput } from "react-native";
 import type {
 	NativeSyntheticEvent,
 	TextInputSelectionChangeEventData,
+	TextInputChangeEventData,
 } from "react-native";
 import type { MarkdownStyles, MarkdownTextInputProps } from "../types";
 import { processStyles } from "../utils";
@@ -381,6 +382,7 @@ function MarkdownTextInput(
 		defaultValue: defaultValueProp,
 		value: valueProp,
 		selection: selectionProp,
+		onChange: onChangeProp,
 		onChangeText: onChangeTextProp,
 		onSelectionChange: onSelectionChangeProp,
 		multiline,
@@ -497,15 +499,19 @@ function MarkdownTextInput(
 		},
 		[setSelection, onSelectionChangeProp]
 	);
-	const onChangeText = useCallback(
-		(text: string) => {
-			const newValue = multiline
-				? text.replaceAll(/\r/g, "")
-				: text.replaceAll(/[\n\r]/g, "");
+	const onChange = useCallback(
+		(event: NativeSyntheticEvent<TextInputChangeEventData>) => {
+			event.nativeEvent.text = multiline
+				? event.nativeEvent.text.replaceAll(/\r/g, "")
+				: event.nativeEvent.text.replaceAll(/[\n\r]/g, "");
+
+			const newValue = event.nativeEvent.text;
+
 			setValue(newValue, true);
+			onChangeProp?.(event);
 			onChangeTextProp?.(newValue);
 		},
-		[setValue, onChangeTextProp, multiline]
+		[setValue, onChangeProp, onChangeTextProp, multiline]
 	);
 
 	/** Sync state to DOM */
@@ -628,7 +634,7 @@ function MarkdownTextInput(
 		<TextInput
 			ref={ref}
 			style={style}
-			onChangeText={onChangeText}
+			onChange={onChange}
 			multiline={multiline}
 			dataSet={dataSet}
 			{...rest}
