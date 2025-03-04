@@ -428,6 +428,7 @@ function MarkdownTextInput(
 		}
 	}, []);
 
+	const isComposing = useRef(false);
 	const isDeleteContentForward = useRef(false);
 
 	/** Value data */
@@ -450,11 +451,11 @@ function MarkdownTextInput(
 			newSelection: { start: number; end: number },
 			shouldInvalidate: boolean
 		) => {
-			setSelectionInternal(newSelection);
-			selectionStore.current = newSelection;
 			if (shouldInvalidate) {
 				isSelectionStale.current = true;
 			}
+			setSelectionInternal(newSelection);
+			selectionStore.current = newSelection;
 		},
 		[]
 	);
@@ -464,14 +465,15 @@ function MarkdownTextInput(
 		(newValue: string) => {
 			const oldValue = valueStore.current;
 
-			const oldValueIgnoredOffset = oldValue.at(-1) === "\n" ? 1 : 0;
-			const newValueIgnoredOffset = newValue.at(-1) === "\n" ? 1 : 0;
+			// Last <br> (\n) is ignored (not rendered) as its sole purpose is to render the previous <br> if any.
+			const oldValueOffsetCorrection = oldValue.at(-1) === "\n" ? 1 : 0;
+			const newValueOffsetCorrection = newValue.at(-1) === "\n" ? 1 : 0;
 
 			const position = isDeleteContentForward.current
 				? selectionStore.current.start
 				: selectionStore.current.end -
-				  (oldValue.length - oldValueIgnoredOffset) +
-				  (newValue.length - newValueIgnoredOffset);
+				  (oldValue.length - oldValueOffsetCorrection) +
+				  (newValue.length - newValueOffsetCorrection);
 
 			setSelection({ start: position, end: position }, true);
 		},
@@ -481,12 +483,12 @@ function MarkdownTextInput(
 	/** Value setter */
 	const setValue = useCallback(
 		(newValue: string, shouldInvalidate: boolean) => {
-			setValueInternal(newValue);
-			syncCursorPosition(newValue);
-			valueStore.current = newValue;
 			if (shouldInvalidate) {
 				isValueStale.current = true;
+				syncCursorPosition(newValue);
 			}
+			setValueInternal(newValue);
+			valueStore.current = newValue;
 		},
 		[syncCursorPosition]
 	);
@@ -506,8 +508,7 @@ function MarkdownTextInput(
 				: event.nativeEvent.text.replaceAll(/[\n\r]/g, "");
 
 			const newValue = event.nativeEvent.text;
-
-			setValue(newValue, true);
+			setValue(newValue, !isComposing.current);
 			onChangeProp?.(event);
 			onChangeTextProp?.(newValue);
 		},
@@ -611,6 +612,39 @@ function MarkdownTextInput(
 				handleSelectionChange
 			);
 	}, [onSelectionChange]);
+
+	useEffect(() => {
+		const handleCompositionStart = (event: NativeSyntheticEvent<any>) => {
+			isComposing.current = true;
+		};
+
+		innerRef.current.addEventListener(
+			"compositionstart",
+			handleCompositionStart
+		);
+		return () =>
+			innerRef.current.removeEventListener(
+				"compositionstart",
+				handleCompositionStart
+			);
+	}, []);
+
+	useEffect(() => {
+		const handleCompositionEnd = (event: NativeSyntheticEvent<any>) => {
+			isComposing.current = false;
+			setValue(valueStore.current, true);
+		};
+
+		innerRef.current.addEventListener(
+			"compositionend",
+			handleCompositionEnd
+		);
+		return () =>
+			innerRef.current.removeEventListener(
+				"compositionend",
+				handleCompositionEnd
+			);
+	}, [setValue]);
 
 	useEffect(() => {
 		const handleBeforeInput = (event: NativeSyntheticEvent<any>) => {
