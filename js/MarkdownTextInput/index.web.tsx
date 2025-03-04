@@ -508,6 +508,7 @@ function MarkdownTextInput(
 				: event.nativeEvent.text.replaceAll(/[\n\r]/g, "");
 
 			const newValue = event.nativeEvent.text;
+
 			setValue(newValue, !isComposing.current);
 			onChangeProp?.(event);
 			onChangeTextProp?.(newValue);
