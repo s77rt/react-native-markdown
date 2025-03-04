@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.3.2] - 2025-03-04
+
+### Fixed
+
+-   Web (Safari) Can't type à ([#22](https://github.com/s77rt/react-native-markdown/issues/22)).
+-   Web: onChange and onChangeText report different text ([#25](https://github.com/s77rt/react-native-markdown/issues/25)).
+
 ## [0.3.1] - 2025-02-28
 
 ### Fixed
@@ -63,6 +70,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[0.3.2]: https://github.com/s77rt/react-native-markdown/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/s77rt/react-native-markdown/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/s77rt/react-native-markdown/compare/v0.2.4...v0.3.0
 [0.2.4]: https://github.com/s77rt/react-native-markdown/compare/v0.2.3...v0.2.4
