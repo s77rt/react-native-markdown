@@ -218,15 +218,6 @@ function setSelectionDOM(
 		return;
 	}
 
-	if (start === end && (end === 0 || end === node.innerText.length)) {
-		const range = document.createRange();
-		range.selectNodeContents(node);
-		range.collapse(end === 0);
-		sel.removeAllRanges();
-		sel.addRange(range);
-		return;
-	}
-
 	const range = document.createRange();
 
 	let cursor = 0;
@@ -294,6 +285,15 @@ function setSelectionDOM(
 		if (cursor > end) {
 			break;
 		}
+	}
+
+	const currentRange = sel.rangeCount === 0 ? undefined : sel.getRangeAt(0);
+	if (
+		currentRange &&
+		currentRange.compareBoundaryPoints(Range.START_TO_START, range) === 0 &&
+		currentRange.compareBoundaryPoints(Range.END_TO_END, range) === 0
+	) {
+		return;
 	}
 
 	sel.removeAllRanges();
