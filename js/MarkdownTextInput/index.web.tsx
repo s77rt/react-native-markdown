@@ -646,12 +646,10 @@ function MarkdownTextInput(
 			isComposing.current = true;
 		};
 
-		innerRef.current.addEventListener(
-			"compositionstart",
-			handleCompositionStart
-		);
+		const element = innerRef.current;
+		element.addEventListener("compositionstart", handleCompositionStart);
 		return () =>
-			innerRef.current.removeEventListener(
+			element.removeEventListener(
 				"compositionstart",
 				handleCompositionStart
 			);
@@ -663,15 +661,10 @@ function MarkdownTextInput(
 			setValue(valueStore.current, true);
 		};
 
-		innerRef.current.addEventListener(
-			"compositionend",
-			handleCompositionEnd
-		);
+		const element = innerRef.current;
+		element.addEventListener("compositionend", handleCompositionEnd);
 		return () =>
-			innerRef.current.removeEventListener(
-				"compositionend",
-				handleCompositionEnd
-			);
+			element.removeEventListener("compositionend", handleCompositionEnd);
 	}, [setValue]);
 
 	useEffect(() => {
@@ -680,12 +673,10 @@ function MarkdownTextInput(
 				event.inputType === "deleteContentForward";
 		};
 
-		innerRef.current.addEventListener("beforeinput", handleBeforeInput);
+		const element = innerRef.current;
+		element.addEventListener("beforeinput", handleBeforeInput);
 		return () =>
-			innerRef.current.removeEventListener(
-				"beforeinput",
-				handleBeforeInput
-			);
+			element.removeEventListener("beforeinput", handleBeforeInput);
 	}, []);
 
 	return (
