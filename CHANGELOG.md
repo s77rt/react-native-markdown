@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.4.0] - 2025-03-16
+
+### Changed
+
+-   Web: Load WASM module asynchronously ([#23](https://github.com/s77rt/react-native-markdown/issues/23)).
+-   Web: Skip syncing cursor position when possible ([#26](https://github.com/s77rt/react-native-markdown/issues/26)).
+
 ## [0.3.2] - 2025-03-04
 
 ### Fixed
@@ -70,6 +77,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[0.4.0]: https://github.com/s77rt/react-native-markdown/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/s77rt/react-native-markdown/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/s77rt/react-native-markdown/compare/v0.3.0...v0.3.1
 [0.3.0]: https://github.com/s77rt/react-native-markdown/compare/v0.2.4...v0.3.0
