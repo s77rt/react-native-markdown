@@ -529,22 +529,20 @@ function MarkdownTextInput(
 	);
 
 	/** Sync state to DOM */
-	if (isReady) {
-		if (isValueStale.current) {
-			transformNodeDOM(
-				innerRef.current,
-				domParser.parseFromString(
-					// format is guaranteed to be defined if isReady is true
-					(format as (text: string) => string)(value),
-					"text/html"
-				).body
-			);
-			isValueStale.current = false;
-		}
-		if (isSelectionStale.current) {
-			setSelectionDOM(innerRef.current, selection);
-			isSelectionStale.current = false;
-		}
+	if (isValueStale.current && isReady) {
+		transformNodeDOM(
+			innerRef.current,
+			domParser.parseFromString(
+				// format is guaranteed to be defined if isReady is true
+				(format as (text: string) => string)(value),
+				"text/html"
+			).body
+		);
+		isValueStale.current = false;
+	}
+	if (isSelectionStale.current && isReady) {
+		setSelectionDOM(innerRef.current, selection);
+		isSelectionStale.current = false;
 	}
 
 	/** Sync props to state */
