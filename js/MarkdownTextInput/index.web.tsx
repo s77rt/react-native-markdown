@@ -45,23 +45,28 @@ const modifiedCreateElement = (type, props, ...children) => {
 Object.assign(React, { createElement: modifiedCreateElement });
 
 /** WebAssembly parser */
-const parserModule = parser();
-function format(text: string): string {
-	if (text.length === 0) {
-		return "<md-div></md-div>";
-	}
+let format: ((text: string) => string) | undefined = undefined;
+parser().then((parserModule) => {
+	format = (text: string) => {
+		if (text.length === 0) {
+			return "<md-div></md-div>";
+		}
 
-	const textPtr = parserModule._malloc((text.length + 1) * 2);
-	parserModule.stringToUTF16(text, textPtr);
+		const textPtr = parserModule._malloc((text.length + 1) * 2);
+		parserModule.stringToUTF16(text, textPtr);
 
-	const formatedTextPtr = parserModule._PARSEANDFORMAT(textPtr, text.length);
-	parserModule._free(textPtr);
+		const formatedTextPtr = parserModule._PARSEANDFORMAT(
+			textPtr,
+			text.length
+		);
+		parserModule._free(textPtr);
 
-	const formatedText = parserModule.UTF16ToString(formatedTextPtr);
-	parserModule._free(formatedTextPtr);
+		const formatedText = parserModule.UTF16ToString(formatedTextPtr);
+		parserModule._free(formatedTextPtr);
 
-	return formatedText;
-}
+		return formatedText;
+	};
+});
 
 /** CSS builder */
 const markdownStyleKeyHTMLTag: Record<keyof MarkdownStyles, string> = {
@@ -392,6 +397,24 @@ function MarkdownTextInput(
 ) {
 	const [id] = useState<string>(() => crypto.randomUUID());
 
+	const innerRef = useRef<TextInput>();
+	const ref = useCallback((el: HTMLElement) => {
+		innerRef.current = el;
+		if (typeof outerRef === "function") {
+			outerRef(el);
+		} else if (outerRef) {
+			outerRef.current = el;
+		}
+	}, []);
+
+	// The initial value needs to be false even if the parser is ready.
+	// This is required so we are guaranteed a second render where the ref is available (for initialization).
+	const [isParserReady, setIsParserReady] = useState(false);
+	if (!isParserReady) {
+		parser().then(() => setIsParserReady(true));
+	}
+	const isReady = innerRef.current && isParserReady;
+
 	const markdownStyles = useMemo(() => {
 		const styles = JSON.parse(JSON.stringify(markdownStylesProp));
 		processStyles(styles);
@@ -417,17 +440,6 @@ function MarkdownTextInput(
 		[dataSetProp, id]
 	);
 
-	const innerRef = useRef<TextInput>();
-
-	const ref = useCallback((el: HTMLElement) => {
-		innerRef.current = el;
-		if (typeof outerRef === "function") {
-			outerRef(el);
-		} else if (outerRef) {
-			outerRef.current = el;
-		}
-	}, []);
-
 	const isComposing = useRef(false);
 	const isDeleteContentForward = useRef(false);
 
@@ -436,14 +448,14 @@ function MarkdownTextInput(
 		defaultValueProp ?? valueProp ?? ""
 	);
 	const valueStore = useRef(value);
-	const isValueStale = useRef(false);
+	const isValueStale = useRef(true);
 
 	/** Selection data */
 	const [selection, setSelectionInternal] = useState(
 		selectionProp ?? { start: value.length, end: value.length }
 	);
 	const selectionStore = useRef(selection);
-	const isSelectionStale = useRef(false);
+	const isSelectionStale = useRef(true);
 
 	/** Selection setter */
 	const setSelection = useCallback(
@@ -517,16 +529,22 @@ function MarkdownTextInput(
 	);
 
 	/** Sync state to DOM */
-	if (innerRef.current && isValueStale.current) {
-		transformNodeDOM(
-			innerRef.current,
-			domParser.parseFromString(format(value), "text/html").body
-		);
-		isValueStale.current = false;
-	}
-	if (innerRef.current && isSelectionStale.current) {
-		setSelectionDOM(innerRef.current, selection);
-		isSelectionStale.current = false;
+	if (isReady) {
+		if (isValueStale.current) {
+			transformNodeDOM(
+				innerRef.current,
+				domParser.parseFromString(
+					// format is guaranteed to be defined if isReady is true
+					(format as (text: string) => string)(value),
+					"text/html"
+				).body
+			);
+			isValueStale.current = false;
+		}
+		if (isSelectionStale.current) {
+			setSelectionDOM(innerRef.current, selection);
+			isSelectionStale.current = false;
+		}
 	}
 
 	/** Sync props to state */
@@ -553,7 +571,16 @@ function MarkdownTextInput(
 			/** Used to get the `text` value that is sent with events e.g. onFocus */
 			get: () => innerRef.current.innerText,
 			/** Used to set/clear the input */
-			set: (newValue) => (innerRef.current.innerHTML = format(newValue)),
+			set: (newValue) => {
+				if (!format) {
+					console.warn(
+						"MarkdownTextInput: format is undefined (parser is not ready)."
+					);
+					return;
+				}
+
+				innerRef.current.innerHTML = format(newValue);
+			},
 		});
 
 		Object.defineProperty(innerRef.current, "selectionStart", {
@@ -659,10 +686,6 @@ function MarkdownTextInput(
 				"beforeinput",
 				handleBeforeInput
 			);
-	}, []);
-
-	useEffect(() => {
-		innerRef.current.innerHTML = format(value);
 	}, []);
 
 	return (
