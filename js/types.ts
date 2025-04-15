@@ -1,4 +1,4 @@
-import type { TextInputProps, ColorValue } from "react-native";
+import type { TextInputProps, TextProps, ColorValue } from "react-native";
 
 type CommonStyle = {
 	backgroundColor?: ColorValue | undefined;
@@ -71,5 +71,6 @@ type MarkdownProps = {
 };
 
 type MarkdownTextInputProps = TextInputProps & MarkdownProps;
+type MarkdownTextProps = TextProps & MarkdownProps;
 
-export type { MarkdownStyles, MarkdownTextInputProps };
+export type { MarkdownStyles, MarkdownTextInputProps, MarkdownTextProps };
