@@ -3,11 +3,14 @@
 #import "RTNMarkdown.h"
 #import "RTNMarkdownComponentProps.h"
 #import "RTNMarkdownFormatter.h"
+#import "RTNMarkdownParagraphTextView.h"
 #import "RTNMarkdownTextContentStorageDelegate.h"
 #import "RTNMarkdownTextLayoutManagerDelegate.h"
 #import "RTNMarkdownUITextView.h"
 
 #import <React/RCTBackedTextInputViewProtocol.h>
+#import <React/RCTParagraphComponentView.h>
+#import <React/RCTTextInputComponentView.h>
 #import <React/RCTUITextView.h>
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
@@ -22,7 +25,7 @@ using namespace facebook::react;
 @end
 
 @implementation RTNMarkdown {
-  UIView<RCTBackedTextInputViewProtocol> *_backedTextInputView;
+  UIView<RCTBackedTextInputViewProtocol> *_backedTextInputView; // s77rt TODO
   RTNMarkdownFormatter *_formatter;
   RTNMarkdownTextLayoutManagerDelegate<NSTextLayoutManagerDelegate>
       *_textLayoutManagerDelegate;
@@ -79,21 +82,29 @@ using namespace facebook::react;
 - (void)mountChildComponentView:
             (UIView<RCTComponentViewProtocol> *)childComponentView
                           index:(NSInteger)index {
-  _backedTextInputView =
-      [childComponentView valueForKey:@"_backedTextInputView"];
+  if ([childComponentView isKindOfClass:[RCTTextInputComponentView class]]) {
+    _backedTextInputView =
+        [childComponentView valueForKey:@"_backedTextInputView"];
 
-  // Only UITextView (RCTUITextView) exposes a text layout manager
-  if ([_backedTextInputView isKindOfClass:[RCTUITextView class]]) {
-    object_setClass((RCTUITextView *)_backedTextInputView,
-                    objc_getClass("RTNMarkdownUITextView"));
+    // Only UITextView (RCTUITextView) exposes a text layout manager
+    if ([_backedTextInputView isKindOfClass:[RCTUITextView class]]) {
+      object_setClass((RCTUITextView *)_backedTextInputView,
+                      objc_getClass("RTNMarkdownUITextView"));
 
-    NSTextLayoutManager *textLayoutManager =
-        ((RTNMarkdownUITextView *)_backedTextInputView).textLayoutManager;
-    NSTextContentStorage *textContentStorage =
-        (NSTextContentStorage *)(textLayoutManager.textContentManager);
+      NSTextLayoutManager *textLayoutManager =
+          ((RTNMarkdownUITextView *)_backedTextInputView).textLayoutManager;
+      NSTextContentStorage *textContentStorage =
+          (NSTextContentStorage *)(textLayoutManager.textContentManager);
 
-    textLayoutManager.delegate = _textLayoutManagerDelegate;
-    textContentStorage.delegate = _textContentStorageDelegate;
+      textLayoutManager.delegate = _textLayoutManagerDelegate;
+      textContentStorage.delegate = _textContentStorageDelegate;
+    }
+  } else if ([childComponentView
+                 isKindOfClass:[RCTParagraphComponentView class]]) {
+    object_setClass([childComponentView valueForKey:@"_textView"],
+                    objc_getClass("RTNMarkdownParagraphTextView"));
+
+    NSLog(@"this is a text");
   }
 
   [super mountChildComponentView:childComponentView index:index];
