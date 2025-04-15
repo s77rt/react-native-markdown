@@ -1,2 +1,7 @@
 export { default as MarkdownTextInput } from "./MarkdownTextInput";
-export type { MarkdownStyles, MarkdownTextInputProps } from "./types";
+export { default as MarkdownText } from "./MarkdownText";
+export type {
+	MarkdownStyles,
+	MarkdownTextInputProps,
+	MarkdownTextProps,
+} from "./types";
