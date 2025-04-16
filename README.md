@@ -1,20 +1,24 @@
-# React Native Markdown Components
+<div align="center">
+	<img alt="logo" src="https://raw.githubusercontent.com/s77rt/react-native-markdown/refs/heads/main/assets/logo.png" />
+</div>
 
-Drop-in replacements for React Native Components with a built-in Markdown formatter.
+---
+
+@s77rt/react-native-markdown is a components library that provides drop-in replacements for React Native components with a built-in Markdown formatter.
+
+## Installation
 
 ```bash
 npm install @s77rt/react-native-markdown
 ```
 
-## `<MarkdownTextInput />`
+## Components
 
-<img align="right" alt="Demo" height="140" src="https://raw.githubusercontent.com/s77rt/react-native-markdown/main/assets/demo.gif">
+### `<MarkdownTextInput />`
 
-`<MarkdownTextInput />` is a drop-in replacement for `<TextInput />` with a built-in Markdown formatter.
+`<MarkdownTextInput />` is a drop-in replacement for `<TextInput />` with a built-in Markdown formatter that takes an additional prop `markdownStyles` allowing you to customize the format of each Markdown fragment. Please refer to [Markdown Styles](#markdown-styles) for the list of supported styles.
 
-`<MarkdownTextInput />` accepts an addtional prop `markdownStyles` allowing you to customize the format of each Markdown fragment. Please refer to [Markdown Styles](#markdown-styles) for the list of supported styles.
-
-### Usage
+#### Usage
 
 ```tsx
 const markdownStyles = useMemo<MarkdownStyles>(
