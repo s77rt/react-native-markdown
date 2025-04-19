@@ -46,6 +46,14 @@
 	"codegenConfig": {
 		"name": "RTNMarkdownSpecs",
 		"type": "components",
-		"jsSrcsDir": "js"
+		"jsSrcsDir": "js",
+		"android": {
+			"javaPackageName": "com.rtnmarkdown"
+		},
+		"ios": {
+			"componentProvider": {
+				"RTNMarkdown": "RTNMarkdown"
+			}
+		}
 	}
 }
