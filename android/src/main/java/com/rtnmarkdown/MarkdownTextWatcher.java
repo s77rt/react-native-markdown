@@ -7,7 +7,7 @@ import com.facebook.react.views.textinput.ReactEditText;
 
 public class MarkdownTextWatcher implements TextWatcher {
   private ReactEditText mReactEditText;
-  @Nullable private MarkdownFormatter mFormatter;
+  private MarkdownFormatter mFormatter;
   @Nullable private String mPreviousText;
 
   public void watch(ReactEditText editText) {
@@ -18,6 +18,9 @@ public class MarkdownTextWatcher implements TextWatcher {
   public void setFormatter(MarkdownFormatter formatter) {
     mFormatter = formatter;
     mPreviousText = null;
+    if (mReactEditText != null) {
+      this.format(mReactEditText.getText());
+    }
   }
 
   @Override
@@ -29,10 +32,10 @@ public class MarkdownTextWatcher implements TextWatcher {
 
   @Override
   public void afterTextChanged(Editable s) {
-    if (mFormatter == null) {
-      return;
-    }
+    this.format(s);
+  }
 
+  private void format(Editable s) {
     String newText = s.toString();
 
     if (mPreviousText != null && mPreviousText.equals(newText)) {

@@ -17,11 +17,7 @@ public class Markdown extends ReactViewGroup {
     mContext = context;
   }
 
-  public void setMarkdownStyles(@Nullable ReadableMap markdownStyles) {
-    if (markdownStyles == null) {
-      mTextWatcher.setFormatter(null);
-      return;
-    }
+  public void setMarkdownStyles(ReadableMap markdownStyles) {
     mTextWatcher.setFormatter(new MarkdownFormatter(mContext, markdownStyles));
   }
 
