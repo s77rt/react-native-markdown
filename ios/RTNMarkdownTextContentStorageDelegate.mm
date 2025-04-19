@@ -13,6 +13,9 @@
     _formatter = formatter;
     _previousString = nil;
     _previousFormattedString = nil;
+    if (_textView != nil) {
+      [_textView invalidateAndLayout];
+    }
   }
 }
 

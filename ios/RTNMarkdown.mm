@@ -7,7 +7,6 @@
 #import "RTNMarkdownTextLayoutManagerDelegate.h"
 #import "RTNMarkdownUITextView.h"
 
-#import <React/RCTBackedTextInputViewProtocol.h>
 #import <React/RCTUITextView.h>
 
 #import <react/renderer/components/RTNMarkdownSpecs/ComponentDescriptors.h>
@@ -22,7 +21,7 @@ using namespace facebook::react;
 @end
 
 @implementation RTNMarkdown {
-  UIView<RCTBackedTextInputViewProtocol> *_backedTextInputView;
+  RTNMarkdownUITextView *_textView;
   RTNMarkdownFormatter *_formatter;
   RTNMarkdownTextLayoutManagerDelegate<NSTextLayoutManagerDelegate>
       *_textLayoutManagerDelegate;
@@ -79,20 +78,22 @@ using namespace facebook::react;
 - (void)mountChildComponentView:
             (UIView<RCTComponentViewProtocol> *)childComponentView
                           index:(NSInteger)index {
-  _backedTextInputView =
-      [childComponentView valueForKey:@"_backedTextInputView"];
-
   // Only UITextView (RCTUITextView) exposes a text layout manager
-  if ([_backedTextInputView isKindOfClass:[RCTUITextView class]]) {
-    object_setClass((RCTUITextView *)_backedTextInputView,
+  if ([[childComponentView valueForKey:@"_backedTextInputView"]
+          isKindOfClass:[RCTUITextView class]]) {
+    object_setClass((RCTUITextView *)[childComponentView
+                        valueForKey:@"_backedTextInputView"],
                     objc_getClass("RTNMarkdownUITextView"));
 
-    NSTextLayoutManager *textLayoutManager =
-        ((RTNMarkdownUITextView *)_backedTextInputView).textLayoutManager;
+    _textView = (RTNMarkdownUITextView *)[childComponentView
+        valueForKey:@"_backedTextInputView"];
+    NSTextLayoutManager *textLayoutManager = _textView.textLayoutManager;
     NSTextContentStorage *textContentStorage =
         (NSTextContentStorage *)(textLayoutManager.textContentManager);
 
     textLayoutManager.delegate = _textLayoutManagerDelegate;
+
+    _textContentStorageDelegate.textView = _textView;
     textContentStorage.delegate = _textContentStorageDelegate;
   }
 
