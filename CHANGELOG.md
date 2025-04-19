@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2025-04-19
+
+### Fixed
+
+-   Dynamically changing `markdownStyles` does not reformat text ([#9](https://github.com/s77rt/react-native-markdown/issues/9)).
+-   Codegen warnings (missing `ios.componentProvider`) ([#29](https://github.com/s77rt/react-native-markdown/issues/29)).
+
 ## [0.4.0] - 2025-03-16
 
 ### Changed
@@ -77,6 +84,7 @@ All notable changes to this project will be documented in this file.
 
 -   Initial release.
 
+[1.0.0]: https://github.com/s77rt/react-native-markdown/compare/v0.4.0...v1.0.0
 [0.4.0]: https://github.com/s77rt/react-native-markdown/compare/v0.3.2...v0.4.0
 [0.3.2]: https://github.com/s77rt/react-native-markdown/compare/v0.3.1...v0.3.2
 [0.3.1]: https://github.com/s77rt/react-native-markdown/compare/v0.3.0...v0.3.1
